@@ -1,6 +1,6 @@
 // TTS 引擎共享类型（main / renderer 共用）。
 
-export type TtsEngine = "off" | "minimax" | "gptsovits" | "custom-cloud" | "mimo" | "mossland";
+export type TtsEngine = "off" | "minimax" | "gptsovits" | "custom-cloud" | "mimo" | "mossland" | "indextts";
 
 export const DEFAULT_MOSSLAND_TTS_MODEL = "moss-tts-1.5-flash";
 export type MosslandSyncFormat = "mp3" | "wav";
@@ -25,6 +25,17 @@ export interface CustomCloudSynthesizeRequest {
   volume?: number;              // 0~1，默认 1
   format?: "wav" | "mp3";       // 默认 mp3
   timeoutMs?: number;           // 默认 30000
+}
+
+/** IndexTTS 合成请求（渲染端 → 主进程 IPC payload）。版本无关，兼容 IndexTTS 2.x。 */
+export interface IndexttsSynthesizeRequest {
+  baseUrl: string;              // 形如 "http://localhost:9880"，不含路径
+  refAudioPath: string;         // 参考音频绝对路径
+  promptText: string;           // 参考音频对应的文本
+  text: string;                 // 待合成文本
+  speed?: number;               // 语速，默认 1
+  lang?: string;                // 语言（如 "zh"、"en"），缺省由服务端决定
+  format?: "wav" | "mp3";       // 输出格式，默认 wav
 }
 
 /** 小米 MiMo TTS 合成请求（渲染端 → 主进程 IPC payload）。 */

@@ -74,7 +74,7 @@ export interface GeneralSettings extends ChatAppearanceSettings {
   /** 主动消息最终投递到本地、微信或飞书。 */
   proactiveDeliveryTarget: ProactiveDeliveryTarget;
   // TTS 配置
-  ttsEngine: "off" | "minimax" | "gptsovits" | "custom-cloud" | "mimo" | "mossland";
+  ttsEngine: "off" | "minimax" | "gptsovits" | "custom-cloud" | "mimo" | "mossland" | "indextts";
   ttsAutoRead: boolean;
   ttsSpeed: number;
   ttsVolume: number;
@@ -104,6 +104,20 @@ export interface GeneralSettings extends ChatAppearanceSettings {
   ttsCustomCloudVoiceId: string;
   ttsCustomCloudFormat: "wav" | "mp3";
   ttsCustomCloudTimeoutMs: number;
+  // IndexTTS（版本无关，兼容 2.x；默认引擎 2.0）
+  ttsIndexttsBaseUrl: string;
+  ttsIndexttsRefAudioPath: string;
+  ttsIndexttsPromptText: string;
+  ttsIndexttsLang: string;
+  ttsIndexttsFormat: "wav" | "mp3";
+  /** IndexTTS 模型 checkpoint 目录（auto-launch 用；与 pythonPath 一起填即自动启动服务）。 */
+  ttsIndexttsModelDir: string;
+  /** 装了 index-tts/torch 的 Python 解释器路径（auto-launch 用）。 */
+  ttsIndexttsPythonPath: string;
+  /** 本地服务的端口（默认 9880）。 */
+  ttsIndexttsPort: number;
+  /** 引擎版本：v2（IndexTTS 2.0，默认）| v2_5（升级到 2.5，指向 infer_v2_5）。 */
+  ttsIndexttsEngineVersion: "v2" | "v2_5";
   // 小米 MiMo TTS
   ttsMimoKey: string;
   ttsMimoVoiceAudioPath: string;

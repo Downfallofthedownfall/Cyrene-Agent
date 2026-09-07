@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { versionTtsCacheKey } from "./tts-cache-key";
 
 describe("versionTtsCacheKey", () => {
-  it.each(["minimax", "gptsovits", "custom-cloud", "mimo", "mossland"])(
+  it.each(["minimax", "gptsovits", "custom-cloud", "mimo", "mossland", "indextts"])(
     "preserves the %s provider prefix",
     (provider) => {
       expect(versionTtsCacheKey(`${provider}-original`, "raw-v1")).toMatch(

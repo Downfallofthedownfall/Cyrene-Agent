@@ -13,6 +13,8 @@ import type {
 import { synthesize as minimaxSynthesize } from "../../tts/minimax-engine";
 import { synthesize as gptsovitsSynthesize } from "../../tts/gptsovits-engine";
 import { synthesize as customCloudSynthesize } from "../../tts/custom-cloud-engine";
+import { synthesize as indexttsSynthesize } from "../../tts/indextts-engine";
+import { resolveIndexttsBaseUrl } from "../../tts/indextts-server";
 import { synthesize as mimoSynthesize } from "../../tts/mimo-engine";
 import { synthesize as mosslandSynthesize } from "../../tts/mossland-engine";
 import { synthesizeByEngine } from "../../tts/tts-dispatcher";
@@ -22,10 +24,12 @@ import {
   appendMinimaxTtsLog,
   appendGptsovitsTtsLog,
   appendCustomCloudTtsLog,
+  appendIndexttsTtsLog,
   appendMimoTtsLog,
   buildTtsCacheKey,
   buildGptsovitsCacheKey,
   buildCustomCloudCacheKey,
+  buildIndexttsCacheKey,
   buildMimoCacheKey,
   buildMosslandCacheKey,
   getTtsCachePath,
@@ -226,6 +230,31 @@ export function createTtsSynthesisService(
       audio = (
         await customCloudSynthesize({ ...payload, debugLog: appendCustomCloudTtsLog })
       ).audio;
+    } else if (settings.ttsEngine === "indextts") {
+      if (!settings.ttsIndexttsRefAudioPath || !settings.ttsIndexttsPromptText) {
+        throw new Error("IndexTTS TTS 配置不完整");
+      }
+      // auto-launch：无 baseUrl 由 runner 解析（用户只填 modelDir/pythonPath）；
+      // 自己跑 server 时在设置里保留一个 baseUrl 覆盖。
+      const baseUrl = await resolveIndexttsBaseUrl(settings);
+      format = settings.ttsIndexttsFormat;
+      const payload = {
+        baseUrl,
+        refAudioPath: settings.ttsIndexttsRefAudioPath,
+        promptText: settings.ttsIndexttsPromptText,
+        text: request.speechText,
+        speed: settings.ttsSpeed,
+        lang: settings.ttsIndexttsLang,
+        format,
+      };
+      cacheKey = buildIndexttsCacheKey(payload);
+      audio = (
+        await indexttsSynthesize({
+          ...payload,
+          resolveBaseUrl: () => baseUrl,
+          debugLog: appendIndexttsTtsLog,
+        })
+      ).audio;
     } else if (settings.ttsEngine === "mimo") {
       if (!settings.ttsMimoKey || !settings.ttsMimoVoiceAudioPath) {
         throw new Error("MiMo TTS 配置不完整");
@@ -292,6 +321,12 @@ export function createTtsSynthesisService(
     if (cfg.ttsEngine === "custom-cloud" && !cfg.ttsCustomCloudEndpointUrl) {
       return null;
     }
+    if (
+      cfg.ttsEngine === "indextts" &&
+      (!cfg.ttsIndexttsRefAudioPath || !cfg.ttsIndexttsPromptText)
+    ) {
+      return null;
+    }
     if (cfg.ttsEngine === "mimo" && (!cfg.ttsMimoKey || !cfg.ttsMimoVoiceAudioPath)) {
       return null;
     }
@@ -323,9 +358,10 @@ export function createTtsSynthesisService(
               ? cfg.ttsCustomCloudVoiceId
               : cfg.ttsMinimaxVoiceId,
         model: cfg.ttsEngine === "mossland" ? cfg.ttsMosslandModel : cfg.ttsMinimaxModel,
-        baseUrl: cfg.ttsGptsovitsBaseUrl,
-        refAudioPath: cfg.ttsGptsovitsRefAudioPath,
-        promptText: cfg.ttsGptsovitsPromptText,
+        baseUrl: cfg.ttsEngine === "indextts" ? undefined : cfg.ttsGptsovitsBaseUrl,
+        refAudioPath: cfg.ttsEngine === "indextts" ? cfg.ttsIndexttsRefAudioPath : cfg.ttsGptsovitsRefAudioPath,
+        promptText: cfg.ttsEngine === "indextts" ? cfg.ttsIndexttsPromptText : cfg.ttsGptsovitsPromptText,
+        lang: cfg.ttsEngine === "indextts" ? cfg.ttsIndexttsLang : undefined,
         endpointUrl: cfg.ttsCustomCloudEndpointUrl,
         timeoutMs:
           cfg.ttsEngine === "gptsovits"

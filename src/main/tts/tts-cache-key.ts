@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 
-const CACHE_KEY_PREFIX = /^(minimax|gptsovits|custom-cloud|mimo|mossland)-/;
+const CACHE_KEY_PREFIX = /^(minimax|gptsovits|custom-cloud|mimo|mossland|indextts)-/;
 
 /** Adds the speech converter version without losing compound provider prefixes. */
 export function versionTtsCacheKey(cacheKey: string, converterVersion: string): string {

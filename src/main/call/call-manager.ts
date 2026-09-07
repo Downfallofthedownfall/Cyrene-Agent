@@ -85,6 +85,11 @@ let ttsSettingsGetter: (() => {
   ttsGptsovitsTimeoutMs: number;
   ttsCustomCloudEndpointUrl: string; ttsCustomCloudApiKey: string; ttsCustomCloudVoiceId: string;
   ttsCustomCloudFormat: "wav" | "mp3"; ttsCustomCloudTimeoutMs: number;
+  // IndexTTS
+  ttsIndexttsBaseUrl: string; ttsIndexttsRefAudioPath: string;
+  ttsIndexttsPromptText: string; ttsIndexttsLang: string; ttsIndexttsFormat: "wav" | "mp3";
+  ttsIndexttsModelDir: string; ttsIndexttsPythonPath: string;
+  ttsIndexttsPort: number; ttsIndexttsEngineVersion: "v2" | "v2_5";
   ttsMimoKey: string; ttsMimoVoiceAudioPath: string; ttsMimoStylePrompt: string;
 }) | null = null;
 
@@ -105,6 +110,10 @@ export function setCallSettings(
     ttsGptsovitsTimeoutMs: number;
     ttsCustomCloudEndpointUrl: string; ttsCustomCloudApiKey: string; ttsCustomCloudVoiceId: string;
     ttsCustomCloudFormat: "wav" | "mp3"; ttsCustomCloudTimeoutMs: number;
+    ttsIndexttsBaseUrl: string; ttsIndexttsRefAudioPath: string;
+    ttsIndexttsPromptText: string; ttsIndexttsLang: string; ttsIndexttsFormat: "wav" | "mp3";
+    ttsIndexttsModelDir: string; ttsIndexttsPythonPath: string;
+    ttsIndexttsPort: number; ttsIndexttsEngineVersion: "v2" | "v2_5";
     ttsMimoKey: string; ttsMimoVoiceAudioPath: string; ttsMimoStylePrompt: string;
   },
   systemPromptFn: (userText: string) => Promise<string>,
@@ -266,6 +275,12 @@ async function processFinalTranscript(text: string): Promise<void> {
       recoverToListening();
       return;
     }
+    const indexttsServerReady = (tts.ttsIndexttsModelDir && tts.ttsIndexttsPythonPath) || tts.ttsIndexttsBaseUrl;
+    if (tts.ttsEngine === "indextts" && (!indexttsServerReady || !tts.ttsIndexttsRefAudioPath || !tts.ttsIndexttsPromptText)) {
+      sendError("TTS 未配置：请在设置中配置 IndexTTS 模型目录/Python 路径（或 baseUrl）、参考音频和文本");
+      recoverToListening();
+      return;
+    }
     if (tts.ttsEngine === "mimo" && (!tts.ttsMimoKey || !tts.ttsMimoVoiceAudioPath)) {
       sendError("TTS 未配置：请在设置中配置小米 MiMo API Key 和昔涟克隆音频");
       recoverToListening();
@@ -290,11 +305,12 @@ async function processFinalTranscript(text: string): Promise<void> {
             ? tts.ttsCustomCloudVoiceId
             : tts.ttsMinimaxVoiceId,
         model: tts.ttsMinimaxModel,
-        // gptsovits
-        baseUrl: tts.ttsGptsovitsBaseUrl,
-        refAudioPath: tts.ttsGptsovitsRefAudioPath,
-        promptText: tts.ttsGptsovitsPromptText,
-        format: tts.ttsGptsovitsFormat,
+        // gptsovits / indextts 共用 baseUrl/refAudioPath/promptText
+        baseUrl: tts.ttsEngine === "indextts" ? undefined : tts.ttsGptsovitsBaseUrl,
+        refAudioPath: tts.ttsEngine === "indextts" ? tts.ttsIndexttsRefAudioPath : tts.ttsGptsovitsRefAudioPath,
+        promptText: tts.ttsEngine === "indextts" ? tts.ttsIndexttsPromptText : tts.ttsGptsovitsPromptText,
+        format: tts.ttsEngine === "indextts" ? tts.ttsIndexttsFormat : tts.ttsGptsovitsFormat,
+        lang: tts.ttsEngine === "indextts" ? tts.ttsIndexttsLang : undefined,
         // custom-cloud
         endpointUrl: tts.ttsCustomCloudEndpointUrl,
         timeoutMs: tts.ttsEngine === "gptsovits" ? tts.ttsGptsovitsTimeoutMs : tts.ttsCustomCloudTimeoutMs,

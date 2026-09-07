@@ -87,6 +87,15 @@ const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   ttsCustomCloudVoiceId: "",
   ttsCustomCloudFormat: "mp3",
   ttsCustomCloudTimeoutMs: 30000,
+  ttsIndexttsBaseUrl: "http://localhost:9880",
+  ttsIndexttsRefAudioPath: "",
+  ttsIndexttsPromptText: "",
+  ttsIndexttsLang: "zh",
+  ttsIndexttsFormat: "wav",
+  ttsIndexttsModelDir: "",
+  ttsIndexttsPythonPath: "",
+  ttsIndexttsPort: 9880,
+  ttsIndexttsEngineVersion: "v2",
   ttsMimoKey: "",
   ttsMimoVoiceAudioPath: "",
   ttsMimoStylePrompt: "温柔、自然、略带亲近感，像在轻声陪用户聊天。",
@@ -238,7 +247,7 @@ export function normalizeGeneralSettings(
     mobileMessageSegmentation: normalizeMobileMessageSegmentationMode(input?.mobileMessageSegmentation),
     proactiveChatMode: normalizeProactiveChatMode(input?.proactiveChatMode),
     proactiveDeliveryTarget: normalizeProactiveDeliveryTarget(input?.proactiveDeliveryTarget),
-    ttsEngine: (["off", "minimax", "gptsovits", "custom-cloud", "mimo", "mossland"].includes(input?.ttsEngine as string)
+    ttsEngine: (["off", "minimax", "gptsovits", "custom-cloud", "mimo", "mossland", "indextts"].includes(input?.ttsEngine as string)
       ? input?.ttsEngine
       : "off") as GeneralSettings["ttsEngine"],
     ttsAutoRead: input?.ttsAutoRead === undefined
@@ -319,6 +328,19 @@ export function normalizeGeneralSettings(
     ttsCustomCloudVoiceId: typeof input?.ttsCustomCloudVoiceId === "string" ? input.ttsCustomCloudVoiceId : "",
     ttsCustomCloudFormat: input?.ttsCustomCloudFormat === "wav" ? "wav" : "mp3",
     ttsCustomCloudTimeoutMs: clampMs(input?.ttsCustomCloudTimeoutMs, DEFAULT_GENERAL_SETTINGS.ttsCustomCloudTimeoutMs),
+    ttsIndexttsBaseUrl: typeof input?.ttsIndexttsBaseUrl === "string"
+      ? input.ttsIndexttsBaseUrl
+      : DEFAULT_GENERAL_SETTINGS.ttsIndexttsBaseUrl,
+    ttsIndexttsRefAudioPath: typeof input?.ttsIndexttsRefAudioPath === "string" ? input.ttsIndexttsRefAudioPath : "",
+    ttsIndexttsPromptText: typeof input?.ttsIndexttsPromptText === "string" ? input.ttsIndexttsPromptText : "",
+    ttsIndexttsLang: typeof input?.ttsIndexttsLang === "string" && input.ttsIndexttsLang.trim()
+      ? input.ttsIndexttsLang.trim()
+      : DEFAULT_GENERAL_SETTINGS.ttsIndexttsLang,
+    ttsIndexttsFormat: input?.ttsIndexttsFormat === "mp3" ? "mp3" : "wav",
+    ttsIndexttsModelDir: typeof input?.ttsIndexttsModelDir === "string" ? input.ttsIndexttsModelDir : "",
+    ttsIndexttsPythonPath: typeof input?.ttsIndexttsPythonPath === "string" ? input.ttsIndexttsPythonPath : "",
+    ttsIndexttsPort: clampPort(input?.ttsIndexttsPort, DEFAULT_GENERAL_SETTINGS.ttsIndexttsPort),
+    ttsIndexttsEngineVersion: input?.ttsIndexttsEngineVersion === "v2_5" ? "v2_5" : "v2",
     ttsMimoKey: typeof input?.ttsMimoKey === "string" ? input.ttsMimoKey : "",
     ttsMimoVoiceAudioPath: typeof input?.ttsMimoVoiceAudioPath === "string" ? input.ttsMimoVoiceAudioPath : "",
     ttsMimoStylePrompt: typeof input?.ttsMimoStylePrompt === "string"

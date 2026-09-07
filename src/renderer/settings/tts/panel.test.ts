@@ -18,6 +18,12 @@ const REQUIRED_INPUT_IDS = [
   "tts-custom-cloud-key",
   "tts-custom-cloud-voice",
   "tts-custom-cloud-timeout",
+  "tts-indextts-url",
+  "tts-indextts-model-dir",
+  "tts-indextts-python-path",
+  "tts-indextts-port",
+  "tts-indextts-ref-audio",
+  "tts-indextts-prompt-text",
   "tts-mimo-key",
   "tts-mimo-voice-audio",
   "tts-mimo-style",
@@ -79,6 +85,9 @@ describe("TTS settings panel", () => {
     addOptionGroup("tts-early-read-split-mode", ["sentence", "paragraph"]);
     addSelect("tts-gptsovits-format", ["wav", "mp3"]);
     addSelect("tts-custom-cloud-format", ["mp3", "wav"]);
+    addSelect("tts-indextts-lang", ["zh", "en"]);
+    addSelect("tts-indextts-format", ["wav", "mp3"]);
+    addSelect("tts-indextts-engine-version", ["v2", "v2_5"]);
     addSelect("tts-mossland-model", ["moss-tts-1.5-flash", "moss-tts-1.0-pro"]);
     addSelect("tts-mossland-format", ["mp3", "wav"]);
   });

@@ -820,6 +820,17 @@ const ttsApi = {
     speed?: number; volume?: number; format?: "wav" | "mp3"; timeoutMs?: number;
     expectedCacheKey?: string;
   }) => ipcRenderer.invoke(IPC.TTS_SYNTHESIZE_CACHED_CUSTOM_CLOUD, payload),
+  // IndexTTS (2.x) 本地/云端 TTS（独立通道，payload 与 gptsovits 同构 + lang）
+  // baseUrl 可选：留空则主进程 auto-launch（填 modelDir/pythonPath 时）。
+  synthesizeIndextts: (payload: {
+    baseUrl?: string; refAudioPath?: string; promptText?: string; text?: string;
+    speed?: number; lang?: string; format?: "wav" | "mp3";
+  }) => ipcRenderer.invoke(IPC.TTS_SYNTHESIZE_INDEXTTS, payload),
+  synthesizeCachedIndextts: (payload: {
+    baseUrl?: string; refAudioPath?: string; promptText?: string; text?: string;
+    speed?: number; lang?: string; format?: "wav" | "mp3";
+    expectedCacheKey?: string;
+  }) => ipcRenderer.invoke(IPC.TTS_SYNTHESIZE_CACHED_INDEXTTS, payload),
   // 小米 MiMo TTS（官方 chat-completions 接口）
   synthesizeMimo: (payload: {
     apiKey: string; voiceAudioPath?: string; text: string; stylePrompt?: string;

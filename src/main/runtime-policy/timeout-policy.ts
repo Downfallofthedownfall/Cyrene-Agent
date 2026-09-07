@@ -21,6 +21,7 @@ export type RuntimeTimeoutStage =
   | "tts-minimax"
   | "tts-gptsovits"
   | "tts-custom-cloud"
+  | "tts-indextts"
   | "tts-mossland"
   | "asr-mossland"
   | "external-http"
@@ -65,6 +66,10 @@ const STAGE_DEFAULTS: Record<RuntimeTimeoutStage, TimeoutPolicy> = {
   "tts-custom-cloud": {
     // custom-cloud-engine.ts DEFAULT_TIMEOUT_MS：30s
     totalMs: 30_000,
+  },
+  "tts-indextts": {
+    // indextts-engine.ts DEFAULT_TIMEOUT_MS：本地推理可能较慢，默认 3 分钟（同 gptsovits）
+    totalMs: 180_000,
   },
   "tts-mossland": {
     // mossland-engine.ts DEFAULT_TIMEOUT_MS：30s

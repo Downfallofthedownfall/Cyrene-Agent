@@ -6,6 +6,8 @@ import { synthesize as gptsovitsSynthesize } from "./gptsovits-engine";
 import { synthesize as customCloudSynthesize } from "./custom-cloud-engine";
 import { synthesize as mimoSynthesize } from "./mimo-engine";
 import { synthesize as mosslandSynthesize } from "./mossland-engine";
+import { synthesize as indexttsSynthesize } from "./indextts-engine";
+import { resolveIndexttsBaseUrl } from "./indextts-server";
 import { DEFAULT_MOSSLAND_TTS_MODEL, type TtsEngine } from "../../shared/tts-types";
 import type { MiniMaxVocalEnhanceOptions } from "./minimax-vocal-enhancer";
 
@@ -18,7 +20,7 @@ export interface SynthesizeByEnginePayload {
   voiceId?: string;
   model?: string;
   vocalEnhance?: MiniMaxVocalEnhanceOptions;
-  // gptsovits 专用
+  // gptsovits / custom-cloud / indextts 共用
   baseUrl?: string;
   refAudioPath?: string;
   promptText?: string;
@@ -26,6 +28,8 @@ export interface SynthesizeByEnginePayload {
   timeoutMs?: number; // gptsovits / custom-cloud 共用
   // custom-cloud 专用
   endpointUrl?: string;
+  // indextts 专用
+  lang?: string;
   // mimo 专用
   voiceAudioPath?: string;
   stylePrompt?: string;
@@ -93,6 +97,26 @@ export async function synthesizeByEngine(
       volume: payload.volume,
       format: payload.format ?? "mp3",
       timeoutMs: payload.timeoutMs,
+    });
+    return { audio: result.audio, format: result.format };
+  }
+
+  if (engine === "indextts") {
+    if (!payload.refAudioPath || !payload.promptText) {
+      throw new Error("IndexTTS TTS 未配置 refAudioPath/promptText");
+    }
+    // auto-launch：无 baseUrl 时由 runner 解析（用户只填 modelDir/pythonPath）。
+    const baseUrl = payload.baseUrl || await resolveIndexttsBaseUrl();
+    const result = await indexttsSynthesize({
+      baseUrl,
+      resolveBaseUrl: () => baseUrl,
+      refAudioPath: payload.refAudioPath,
+      promptText: payload.promptText,
+      text: payload.text,
+      speed: payload.speed,
+      lang: payload.lang,
+      format: payload.format ?? "wav",
+      timeoutMs: payload.timeoutMs ?? 180_000,
     });
     return { audio: result.audio, format: result.format };
   }

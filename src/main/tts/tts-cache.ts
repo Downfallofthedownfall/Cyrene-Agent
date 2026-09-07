@@ -49,12 +49,23 @@ export function appendMimoTtsLog(entry: Record<string, unknown>): void {
   }
 }
 
+export function appendIndexttsTtsLog(entry: Record<string, unknown>): void {
+  try {
+    const logDir = path.join(app.getPath("userData"), "logs");
+    fs.mkdirSync(logDir, { recursive: true });
+    const logFile = path.join(logDir, "indextts-tts.log");
+    fs.appendFileSync(logFile, JSON.stringify(entry, null, 2) + "\n", "utf8");
+  } catch (err) {
+    console.warn("[TTS IndexTTS] 写诊断日志失败:", err);
+  }
+}
+
 export function getTtsCacheDir(): string {
   return path.join(app.getPath("userData"), "cyrene-tts-cache");
 }
 
 export function assertTtsCacheKey(cacheKey: string): string {
-  if (!/^(minimax|gptsovits|custom-cloud|mimo|mossland)-[a-f0-9]{64}$/.test(cacheKey)) {
+  if (!/^(minimax|gptsovits|custom-cloud|mimo|mossland|indextts)-[a-f0-9]{64}$/.test(cacheKey)) {
     throw new Error("非法 TTS 缓存 key");
   }
   return cacheKey;
@@ -123,6 +134,29 @@ export function buildCustomCloudCacheKey(payload: {
     text: payload.text,
   });
   return "custom-cloud-" + createHash("sha256").update(source, "utf8").digest("hex");
+}
+
+export function buildIndexttsCacheKey(payload: {
+  baseUrl: string;
+  refAudioPath: string;
+  promptText: string;
+  text: string;
+  speed?: number;
+  lang?: string;
+  format?: "wav" | "mp3";
+}): string {
+  const source = JSON.stringify({
+    version: 1,
+    engine: "indextts",
+    baseUrl: payload.baseUrl,
+    refAudioPath: payload.refAudioPath,
+    promptText: payload.promptText,
+    speed: payload.speed ?? 1,
+    lang: payload.lang ?? "",
+    format: payload.format ?? "wav",
+    text: payload.text,
+  });
+  return "indextts-" + createHash("sha256").update(source, "utf8").digest("hex");
 }
 
 export function buildMimoCacheKey(payload: {

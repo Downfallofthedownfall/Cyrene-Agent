@@ -52,6 +52,17 @@ interface TtsApi {
     speed?: number; volume?: number; format?: "wav" | "mp3"; timeoutMs?: number;
     expectedCacheKey?: string;
   }) => Promise<{ base64: string; cacheKey: string; cached: boolean; format: "wav" | "mp3" }>;
+  // IndexTTS（2.x，版本无关；返回 base64 + cacheKey + cached + format）
+  // baseUrl 可选：留空则主进程 auto-launch（填 modelDir/pythonPath 时）。
+  synthesizeIndextts: (payload: {
+    baseUrl?: string; refAudioPath: string; promptText: string; text: string;
+    speed?: number; lang?: string; format?: "wav" | "mp3";
+  }) => Promise<{ base64: string; cacheKey: string; cached: boolean; format: "wav" | "mp3" }>;
+  synthesizeCachedIndextts: (payload: {
+    baseUrl?: string; refAudioPath: string; promptText: string; text: string;
+    speed?: number; lang?: string; format?: "wav" | "mp3";
+    expectedCacheKey?: string;
+  }) => Promise<{ base64: string; cacheKey: string; cached: boolean; format: "wav" | "mp3" }>;
   // 小米 MiMo（返回 base64 + cacheKey + cached + format）
   synthesizeMimo: (payload: {
     apiKey: string; voiceAudioPath?: string; text: string; stylePrompt?: string;
@@ -177,6 +188,20 @@ async function loadTtsConfig(): Promise<void> {
   (ttsEl("tts-custom-cloud-format") as HTMLSelectElement).value =
     ttsState.config.ttsCustomCloudFormat === "wav" ? "wav" : "mp3";
   ttsEl("tts-custom-cloud-timeout").value = String(ttsState.config.ttsCustomCloudTimeoutMs ?? 30000);
+
+  // IndexTTS（2.x，版本无关；默认 2.0）
+  ttsEl("tts-indextts-url").value = String(ttsState.config.ttsIndexttsBaseUrl ?? "http://localhost:9880");
+  ttsEl("tts-indextts-model-dir").value = String(ttsState.config.ttsIndexttsModelDir ?? "");
+  ttsEl("tts-indextts-python-path").value = String(ttsState.config.ttsIndexttsPythonPath ?? "");
+  ttsEl("tts-indextts-port").value = String(ttsState.config.ttsIndexttsPort ?? 9880);
+  (ttsEl("tts-indextts-engine-version") as HTMLSelectElement).value =
+    ttsState.config.ttsIndexttsEngineVersion === "v2_5" ? "v2_5" : "v2";
+  ttsEl("tts-indextts-ref-audio").value = String(ttsState.config.ttsIndexttsRefAudioPath ?? "");
+  ttsEl("tts-indextts-prompt-text").value = String(ttsState.config.ttsIndexttsPromptText ?? "");
+  (ttsEl("tts-indextts-lang") as HTMLSelectElement).value =
+    String(ttsState.config.ttsIndexttsLang ?? "zh");
+  (ttsEl("tts-indextts-format") as HTMLSelectElement).value =
+    ttsState.config.ttsIndexttsFormat === "mp3" ? "mp3" : "wav";
 
   // 小米 MiMo
   ttsEl("tts-mimo-key").value = String(ttsState.config.ttsMimoKey ?? "");
@@ -327,6 +352,9 @@ const ttsProviderUi: Record<string, { btn: HTMLButtonElement; status: HTMLElemen
   "custom-cloud": ttsEl("tts-custom-cloud-save-btn") && safeGet("tts-custom-cloud-save-status")
                     ? { btn: ttsEl("tts-custom-cloud-save-btn"), status: safeGet("tts-custom-cloud-save-status") as HTMLElement }
                     : null,
+  indextts:       ttsEl("tts-indextts-save-btn") && safeGet("tts-indextts-save-status")
+                    ? { btn: ttsEl("tts-indextts-save-btn"), status: safeGet("tts-indextts-save-status") as HTMLElement }
+                    : null,
   mimo:           ttsEl("tts-mimo-save-btn") && safeGet("tts-mimo-save-status")
                     ? { btn: ttsEl("tts-mimo-save-btn"), status: safeGet("tts-mimo-save-status") as HTMLElement }
                     : null,
@@ -370,6 +398,10 @@ async function saveTtsProvider(provider: string): Promise<void> {
       if (elId === "tts-custom-cloud-timeout") {
         const num = Number(el.value);
         if (!Number.isFinite(num) || num <= 0) continue;
+        value = num;
+      } else if (elId === "tts-indextts-port") {
+        const num = Number(el.value);
+        if (!Number.isFinite(num) || num <= 0 || num > 65535) continue;
         value = num;
       }
       payload[field] = value;
@@ -491,6 +523,72 @@ document.getElementById("tts-custom-cloud-test")?.addEventListener("click", asyn
       volume: Number(ttsEl("tts-volume").value),
       format,
       timeoutMs,
+    });
+    playTtsAudio(result.base64, result.format);
+  } catch (err) {
+    window.alert("测试失败: " + (err instanceof Error ? err.message : String(err)));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🔊 测试发音";
+  }
+});
+
+// IndexTTS 语言选择（select，change 时直接保存）
+(ttsEl("tts-indextts-lang") as HTMLSelectElement).addEventListener("change", () => {
+  void saveTtsField("ttsIndexttsLang", (ttsEl("tts-indextts-lang") as HTMLSelectElement).value);
+});
+
+// IndexTTS 格式选择（select，change 时直接保存）
+(ttsEl("tts-indextts-format") as HTMLSelectElement).addEventListener("change", () => {
+  void saveTtsField("ttsIndexttsFormat", (ttsEl("tts-indextts-format") as HTMLSelectElement).value as "wav" | "mp3");
+});
+
+// IndexTTS 引擎版本选择（select，change 时直接保存；升级到 2.5 用）
+(ttsEl("tts-indextts-engine-version") as HTMLSelectElement).addEventListener("change", () => {
+  const value = (ttsEl("tts-indextts-engine-version") as HTMLSelectElement).value;
+  void saveTtsField("ttsIndexttsEngineVersion", value === "v2_5" ? "v2_5" : "v2");
+});
+
+// IndexTTS 选择参考音频
+document.getElementById("tts-indextts-ref-pick")?.addEventListener("click", async () => {
+  if (!window.tts) return;
+  const filePath = await window.tts.pickAudioFile();
+  if (filePath) {
+    ttsEl("tts-indextts-ref-audio").value = filePath;
+    void saveTtsField("ttsIndexttsRefAudioPath", filePath);
+  }
+});
+
+// IndexTTS 测试发音
+document.getElementById("tts-indextts-test")?.addEventListener("click", async () => {
+  if (!window.tts) return;
+  const modelDir = ttsEl("tts-indextts-model-dir").value.trim();
+  const pythonPath = ttsEl("tts-indextts-python-path").value.trim();
+  const baseUrl = ttsEl("tts-indextts-url").value.trim();
+  const refAudioPath = ttsEl("tts-indextts-ref-audio").value.trim();
+  const promptText = ttsEl("tts-indextts-prompt-text").value.trim();
+  const lang = (ttsEl("tts-indextts-lang") as HTMLSelectElement).value.trim();
+  const willAutoLaunch = Boolean(modelDir && pythonPath);
+  if (!willAutoLaunch && !baseUrl) { window.alert("请填写「模型目录」+「Python 路径」（自动启动），或填写 API 地址"); return; }
+  if (!refAudioPath) { window.alert("请先选择参考音频文件"); return; }
+  if (!promptText) { window.alert("请先填写参考音频对应的文本"); return; }
+
+  const btn = document.getElementById("tts-indextts-test") as HTMLButtonElement;
+  btn.disabled = true;
+  btn.textContent = "合成中…";
+  try {
+    if (willAutoLaunch) {
+      // 先把服务端配置落盘，主进程的 auto-launch resolver（resolveIndexttsBaseUrl）才能读到。
+      await window.tts.saveSettings({
+        ttsIndexttsModelDir: modelDir,
+        ttsIndexttsPythonPath: pythonPath,
+        ttsIndexttsPort: Number(ttsEl("tts-indextts-port").value) || 9880,
+      });
+    }
+    const result = await window.tts.synthesizeIndextts({
+      baseUrl: willAutoLaunch ? undefined : baseUrl,
+      refAudioPath, promptText, text: TTS_TEST_TEXT, lang,
+      speed: Number(ttsEl("tts-speed").value),
     });
     playTtsAudio(result.base64, result.format);
   } catch (err) {

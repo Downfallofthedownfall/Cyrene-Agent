@@ -1847,6 +1847,11 @@
                   <span class="tts-engine__name">自定义云端</span>
                   <span class="tts-engine__tag">接口</span>
                 </button>
+                <button type="button" class="tts-engine" data-engine="indextts" role="radio" aria-checked="false">
+                  <span class="tts-engine__icon"><svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><title>IndexTTS</title><path d="M24 6V42C17 42 11.7985 32.8391 11.7985 32.8391H6C4.89543 32.8391 4 31.9437 4 30.8391V17.0108C4 15.9062 4.89543 15.0108 6 15.0108H11.7985C11.7985 15.0108 17 6 24 6Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M32 15L32 15C32.6232 15.5565 33.1881 16.1797 33.6841 16.8588C35.1387 18.8504 36 21.3223 36 24C36 26.6545 35.1535 29.1067 33.7218 31.0893C33.2168 31.7885 32.6391 32.4293 32 33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span class="tts-engine__name">IndexTTS</span>
+                  <span class="tts-engine__tag">2.x</span>
+                </button>
               </div>
             </div>
 
@@ -1989,6 +1994,64 @@
               <div class="tts-config-actions">
                 <div class="save-status" id="tts-custom-cloud-save-status"></div>
                 <button type="button" class="save-btn is-hidden" id="tts-custom-cloud-save-btn">保存配置</button>
+              </div>
+            </div>
+
+            <div class="tts-config" id="tts-config-indextts" hidden>
+              <h2 class="tts-section__title">🔊 IndexTTS 配置</h2>
+              <p class="tts-hint">版本无关的 IndexTTS 2.x HTTP 接口。POST /tts，返回 wav/mp3 原始字节或 JSON { audio_base64, format }。<br>便捷启动（推荐）：只需填「模型目录」+「Python 路径」，主进程会自动拉起本地服务（默认 IndexTTS 2.0）；「API 地址」留空即可。</p>
+              <div class="tts-field">
+                <label>模型目录（checkpoints 所在目录）</label>
+                <input type="text" id="tts-indextts-model-dir" placeholder="例如 D:\models\indextts-2.0\checkpoints" />
+              </div>
+              <div class="tts-field">
+                <label>Python 路径（已装 index-tts + torch）</label>
+                <input type="text" id="tts-indextts-python-path" placeholder="例如 D:\envs\indextts\python.exe" />
+              </div>
+              <div class="tts-field">
+                <label>端口（自动启动用）</label>
+                <input type="number" id="tts-indextts-port" min="1" max="65535" step="1" value="9880" />
+              </div>
+              <div class="tts-field">
+                <label>引擎版本</label>
+                <select id="tts-indextts-engine-version">
+                  <option value="v2">v2（IndexTTS 2.0，默认）</option>
+                  <option value="v2_5">v2_5（IndexTTS 2.5，需服务端支持）</option>
+                </select>
+              </div>
+              <div class="tts-field">
+                <label>API 地址 (baseUrl)</label>
+                <input type="text" id="tts-indextts-url" placeholder="留空=自动启动；自己跑 server 才填，如 http://localhost:9880" />
+              </div>
+              <div class="tts-field">
+                <label>参考音频路径</label>
+                <input type="text" id="tts-indextts-ref-audio" placeholder="点击右侧选择音频文件" readonly />
+                <button type="button" class="ghost-btn tts-pick-btn" id="tts-indextts-ref-pick">选择</button>
+              </div>
+              <div class="tts-field">
+                <label>参考音频对应的文本</label>
+                <input type="text" id="tts-indextts-prompt-text" placeholder="例：你好，我是昔涟" />
+              </div>
+              <div class="tts-field">
+                <label>语言</label>
+                <select id="tts-indextts-lang">
+                  <option value="zh">中文 (zh)</option>
+                  <option value="en">英文 (en)</option>
+                </select>
+              </div>
+              <div class="tts-field">
+                <label>输出格式</label>
+                <select id="tts-indextts-format">
+                  <option value="wav">wav（推荐，IndexTTS 默认）</option>
+                  <option value="mp3">mp3（需服务端支持）</option>
+                </select>
+              </div>
+              <button type="button" class="ghost-btn" id="tts-indextts-test"><svg width="14" height="14" viewBox="0 0 48 48" fill="none" aria-hidden="true"><title>测试发音</title><path d="M24 6V42C17 42 11.7985 32.8391 11.7985 32.8391H6C4.89543 32.8391 4 31.9437 4 30.8391V17.0108C4 15.9062 4.89543 15.0108 6 15.0108H11.7985C11.7985 15.0108 17 6 24 6Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M32 15L32 15C32.6232 15.5565 33.1881 16.1797 33.6841 16.8588C35.1387 18.8504 36 21.3223 36 24C36 26.6545 35.1535 29.1067 33.7218 31.0893C33.2168 31.7885 32.6391 32.4293 32 33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg> 测试发音</button>
+              <div class="tts-clone-status" id="tts-indextts-test-status"></div>
+              <!-- IndexTTS 配置保存 -->
+              <div class="tts-config-actions">
+                <div class="save-status" id="tts-indextts-save-status"></div>
+                <button type="button" class="save-btn is-hidden" id="tts-indextts-save-btn">保存配置</button>
               </div>
             </div>
 

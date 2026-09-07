@@ -36,6 +36,9 @@ extraResources:
     to: bin/cyrene-screenshot.exe
   - from: resources/bin/mpv
     to: bin/mpv
+  # IndexTTS thin server: bundled Python, auto-spawned by src/main/tts/indextts-server.ts
+  - from: src/main/tts/server/indextts_server.py
+    to: indextts/indextts_server.py
   - from: resources/mingit
     to: mingit
   - from: resources/components

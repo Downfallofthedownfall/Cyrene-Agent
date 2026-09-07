@@ -7,6 +7,8 @@ import { validateMiniMaxVoiceId } from "../../shared/minimax-voice";
 import type { StartTtsRequest } from "../../shared/tts-session";
 import { synthesize as customCloudSynthesize } from "./custom-cloud-engine";
 import { synthesize as gptsovitsSynthesize } from "./gptsovits-engine";
+import { synthesize as indexttsSynthesize } from "./indextts-engine";
+import { resolveIndexttsBaseUrl } from "./indextts-server";
 import { synthesize as mimoSynthesize } from "./mimo-engine";
 import { cloneVoice as minimaxCloneVoice, synthesize as minimaxSynthesize, uploadFile as minimaxUploadFile } from "./minimax-engine";
 import { cloneVoice as mosslandCloneVoice, listVoices as mosslandListVoices, synthesize as mosslandSynthesize } from "./mossland-engine";
@@ -14,11 +16,13 @@ import { TtsSessionService } from "./tts-session-service";
 import {
   appendCustomCloudTtsLog,
   appendGptsovitsTtsLog,
+  appendIndexttsTtsLog,
   appendMinimaxTtsLog,
   appendMimoTtsLog,
   assertTtsCacheKey,
   buildCustomCloudCacheKey,
   buildGptsovitsCacheKey,
+  buildIndexttsCacheKey,
   buildMimoCacheKey,
   buildMosslandCacheKey,
   buildTtsCacheKey,
@@ -412,6 +416,101 @@ export function registerTtsIpc(deps: RegisterTtsIpcDeps): void {
     fs.writeFileSync(audioPath, result.audio);
     appendCustomCloudTtsLog({
       requestId: `custom-cloud-cache-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      ts: new Date().toISOString(),
+      phase: "cache.write",
+      cacheKey,
+      audioBytes: result.audio.length,
+      textChars: Array.from(payload.text).length,
+    });
+    return {
+      base64: result.audio.toString("base64"),
+      cacheKey,
+      cached: false,
+      format: result.format,
+    };
+  });
+
+  // IndexTTS (2.x) 语音合成 → base64 音频（测试发音用，不缓存）
+  ipc.handle(IPC.TTS_SYNTHESIZE_INDEXTTS, async (_event, payload: {
+    baseUrl?: string; refAudioPath: string; promptText: string; text: string;
+    speed?: number; lang?: string; format?: "wav" | "mp3";
+  }) => {
+    if (!payload?.refAudioPath || !payload?.promptText || !payload?.text) {
+      throw new Error("缺少必要参数（refAudioPath/promptText/text）");
+    }
+    // auto-launch：无 baseUrl 时由 runner 解析（用户只填 modelDir/pythonPath）。
+    const baseUrl = payload.baseUrl || await resolveIndexttsBaseUrl();
+    const result = await indexttsSynthesize({
+      ...payload,
+      baseUrl,
+      resolveBaseUrl: () => baseUrl,
+      debugLog: appendIndexttsTtsLog,
+    });
+    const cacheKey = buildIndexttsCacheKey({ ...payload, baseUrl });
+    return {
+      base64: result.audio.toString("base64"),
+      cacheKey,
+      cached: false,
+      format: result.format,
+    };
+  });
+
+  // IndexTTS (2.x) 语音合成 + 本地缓存（聊天朗读用）
+  ipc.handle(IPC.TTS_SYNTHESIZE_CACHED_INDEXTTS, async (_event, payload: {
+    baseUrl?: string; refAudioPath: string; promptText: string; text: string;
+    speed?: number; lang?: string; format?: "wav" | "mp3";
+    expectedCacheKey?: string;
+  }) => {
+    const format: "wav" | "mp3" = payload.format ?? "wav";
+
+    let expectedPath: string | null = null;
+    if (payload.expectedCacheKey) {
+      try {
+        expectedPath = getTtsCachePath(payload.expectedCacheKey, format);
+      } catch { /* expectedCacheKey 格式非法，忽略 */ }
+    }
+    if (expectedPath && fs.existsSync(expectedPath)) {
+      const cachedBuffer = fs.readFileSync(expectedPath);
+      appendIndexttsTtsLog({
+        requestId: `indextts-cache-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        ts: new Date().toISOString(),
+        phase: "cache.hit",
+        cacheKey: payload.expectedCacheKey,
+        audioBytes: cachedBuffer.length,
+        textChars: Array.from(payload.text).length,
+      });
+      return {
+        base64: cachedBuffer.toString("base64"),
+        cacheKey: payload.expectedCacheKey,
+        cached: true,
+        format,
+      };
+    }
+
+    if (!payload?.refAudioPath || !payload?.promptText || !payload?.text) {
+      throw new Error("缓存未命中且缺少必要参数（refAudioPath/promptText/text）");
+    }
+
+    // auto-launch：无 baseUrl 时由 runner 解析（用户只填 modelDir/pythonPath）。
+    const baseUrl = payload.baseUrl || await resolveIndexttsBaseUrl();
+    const cacheKey = buildIndexttsCacheKey({ ...payload, baseUrl });
+    const audioPath = getTtsCachePath(cacheKey, format);
+    fs.mkdirSync(path.dirname(audioPath), { recursive: true });
+
+    const result = await indexttsSynthesize({
+      baseUrl,
+      refAudioPath: payload.refAudioPath,
+      promptText: payload.promptText,
+      text: payload.text,
+      speed: payload.speed,
+      lang: payload.lang,
+      format,
+      resolveBaseUrl: () => baseUrl,
+      debugLog: appendIndexttsTtsLog,
+    });
+    fs.writeFileSync(audioPath, result.audio);
+    appendIndexttsTtsLog({
+      requestId: `indextts-cache-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       ts: new Date().toISOString(),
       phase: "cache.write",
       cacheKey,

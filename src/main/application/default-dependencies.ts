@@ -114,6 +114,7 @@ import { bootstrapMusicService } from "../music/bootstrap";
 import { resolveMusicPaths } from "../music/paths";
 import { initializeScreenshotService } from "../screenshot/screenshot-lifecycle";
 import { bootstrapConfigGetters } from "../startup/bootstrap-config";
+import { stopIndexttsServer } from "../tts/indextts-server";
 import { bootstrapPermission } from "../permission/bootstrap";
 import { registerPopQuizIpc, registerPopQuizTool } from "../orchestrator/pop-quiz";
 
@@ -178,6 +179,8 @@ export function createDefaultApplicationDependencies(): ApplicationDependencies 
   });
   app.on("will-quit", () => {
     pendingTurnLifecycle.disposeAll();
+    // 停止 auto-launch 的 IndexTTS 服务（若有在跑）。
+    stopIndexttsServer();
   });
   const readiness = createStartupReadiness();
   const activation = createWindowActivationBroker();
