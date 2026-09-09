@@ -468,7 +468,7 @@
     "statusPending": "Waiting to start",
     "statusRunning": "Running",
     "statusCompleted": "Completed",
-    "statusFailed": "Incomplete"
+    "statusFailed": "Failed"
   },
   "reasoning": {
     "followModel": "Follow model"
