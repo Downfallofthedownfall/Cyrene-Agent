@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { app } from "electron";
-import type { ChannelChatType, ChannelId } from "./types";
+import type { ChannelChatType } from "./types";
 
 const STORE_VERSION = 1;
 const DEFAULT_MAX_EXTERNAL_CHATS = 200;
@@ -9,7 +9,8 @@ const OBSERVATION_WRITE_INTERVAL_MS = 5_000;
 
 export interface ExternalChannelChat {
   sessionId: string;
-  channel: ChannelId;
+  /** 渠道 id；内置四渠道之外还包括插件注册的动态渠道（如 minecraft）。 */
+  channel: string;
   chatId: string;
   chatType: ChannelChatType;
   senderName?: string;
@@ -37,8 +38,11 @@ function emptyState(): PersistedBindingState {
   return { version: STORE_VERSION, externalChats: [], bindings: [] };
 }
 
-function isChannelId(value: unknown): value is ChannelId {
-  return value === "wechat" || value === "feishu" || value === "qq" || value === "qqbot";
+/** 渠道 id 校验：内置渠道（wechat/feishu/qq/qqbot）之外，插件可注册
+ *  动态渠道 id（经 plugin-runtime 注入），因此只做长度与格式约束。 */
+function isChannelId(value: unknown): value is string {
+  return typeof value === "string"
+    && /^[a-z][a-z0-9_-]{0,31}$/.test(value);
 }
 
 function isExternalChat(value: unknown): value is ExternalChannelChat {
