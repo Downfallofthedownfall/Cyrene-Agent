@@ -55,10 +55,21 @@ export interface MarketPluginEntry {
   homepage?: string;
 }
 
+/** 插件市场索引源的健康状态：市场面板据此展示各源（Gitee / GitHub）的实时死活 */
+export interface MarketSourceStatus {
+  url: string;
+  /** 拉取并通过校验 */
+  ok: boolean;
+  /** 是否为本次列表的实际数据源（按优先级取第一个可用源） */
+  used: boolean;
+}
+
 export interface MarketListResult {
   ok: boolean;
   error?: string;
   plugins: MarketPluginEntry[];
+  /** 各索引源的探测结果；旧版本宿主返回的结果可能没有该字段 */
+  sources?: MarketSourceStatus[];
 }
 
 export type MarketInstallResult =

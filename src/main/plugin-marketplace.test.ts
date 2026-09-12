@@ -68,11 +68,13 @@ function makeDeps(overrides: Partial<PluginMarketplaceDeps> = {}): PluginMarketp
 describe("listMarket", () => {
   it("成功拉取并按下载量降序排序", async () => {
     const fetchImpl: MarketplaceFetch = async (input) => {
-      expect(input).toBe(REGISTRY_URL_A);
-      return jsonResponse(registryJson([
-        registryEntry({ id: "low", name: "Low", downloads: 1 }),
-        registryEntry({ id: "high", name: "High", downloads: 99 }),
-      ]));
+      if (input === REGISTRY_URL_A) {
+        return jsonResponse(registryJson([
+          registryEntry({ id: "low", name: "Low", downloads: 1 }),
+          registryEntry({ id: "high", name: "High", downloads: 99 }),
+        ]));
+      }
+      return jsonResponse(registryJson([registryEntry()]));
     };
     const service = createPluginMarketplaceService(makeDeps({ fetchImpl }));
     const result = await service.listMarket();
@@ -89,6 +91,33 @@ describe("listMarket", () => {
     const result = await service.listMarket();
     expect(result.ok).toBe(true);
     expect(result.plugins).toHaveLength(1);
+  });
+
+  it("返回各源实时死活：优先级最高的可用源为数据源，其余可用源 standby", async () => {
+    const fetchImpl: MarketplaceFetch = async (input) => {
+      if (input === REGISTRY_URL_A) return jsonResponse(registryJson([registryEntry()]));
+      throw new Error("github down");
+    };
+    const service = createPluginMarketplaceService(makeDeps({ fetchImpl }));
+    const result = await service.listMarket();
+    expect(result.ok).toBe(true);
+    expect(result.sources).toEqual([
+      { url: REGISTRY_URL_A, ok: true, used: true },
+      { url: REGISTRY_URL_B, ok: false, used: false },
+    ]);
+  });
+
+  it("全部源失败时 sources 仍带回全死状态", async () => {
+    const fetchImpl: MarketplaceFetch = async () => {
+      throw new Error("network down");
+    };
+    const service = createPluginMarketplaceService(makeDeps({ fetchImpl }));
+    const result = await service.listMarket();
+    expect(result.ok).toBe(false);
+    expect(result.sources).toEqual([
+      { url: REGISTRY_URL_A, ok: false, used: false },
+      { url: REGISTRY_URL_B, ok: false, used: false },
+    ]);
   });
 
   it("全部源失败时返回失败且快照被清空", async () => {

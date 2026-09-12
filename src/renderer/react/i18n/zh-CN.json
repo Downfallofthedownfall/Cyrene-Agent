@@ -277,7 +277,10 @@
       "downloads": "{{downloads}} 次下载",
       "loadFailed": "获取插件列表失败：{{error}}",
       "installFailed": "安装失败：{{error}}",
-      "installSuccess": "“{{name}}”安装成功，默认停用中，可返回插件列表启用。"
+      "installSuccess": "“{{name}}”安装成功，默认停用中，可返回插件列表启用。",
+      "sourceUsed": "数据源",
+      "sourceStandby": "可用",
+      "sourceDead": "已死"
     }
   },
   "toolPanel": {

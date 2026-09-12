@@ -2,6 +2,7 @@ import { AppstoreOutlined, LoadingOutlined, PlusOutlined, ReloadOutlined } from 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   MarketPluginEntry,
+  MarketSourceStatus,
   PluginListEntry,
   PluginManagementApi,
   PluginOverview,
@@ -19,6 +20,17 @@ interface PluginModePanelProps {
 // Cyrene 官方插件收录仓库（Gitee 镜像，GitHub 账号申诉期间作为分发源），面板内展示并可在系统浏览器打开
 const PLUGIN_REGISTRY_URL = "https://gitee.com/playa0/cyrene-plugins";
 
+/** 从索引源地址推导展示名：认识的源给友好名，其余直接显示主机名 */
+function marketSourceLabel(url: string): string {
+  if (url.includes("gitee.com")) return "Gitee 镜像";
+  if (url.includes("github")) return "GitHub";
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
 type HeaderAction = "refresh" | "import" | null;
 type PanelView = "installed" | "market";
 
@@ -26,6 +38,8 @@ interface MarketState {
   phase: "idle" | "loading" | "ready" | "error";
   plugins: MarketPluginEntry[];
   error?: string;
+  /** 各索引源的实时死活（含拉取失败时的全死状态），用于头部徽章展示 */
+  sources?: MarketSourceStatus[];
 }
 
 const STATUS_ORDER: Record<PluginRuntimeStatus, number> = {
@@ -113,9 +127,9 @@ export function PluginModePanel({ api: providedApi }: PluginModePanelProps) {
     try {
       const result = await api.marketList();
       if (!result.ok) {
-        setMarket({ phase: "error", plugins: [], error: result.error ?? t("pluginPanel.unknownError") });
+        setMarket({ phase: "error", plugins: [], error: result.error ?? t("pluginPanel.unknownError"), sources: result.sources });
       } else {
-        setMarket({ phase: "ready", plugins: result.plugins });
+        setMarket({ phase: "ready", plugins: result.plugins, sources: result.sources });
       }
     } catch (cause) {
       setMarket({
@@ -275,6 +289,26 @@ export function PluginModePanel({ api: providedApi }: PluginModePanelProps) {
             </a>
             {t("pluginPanel.registrySuffix")}
           </p>
+          {inMarket && market.sources && market.sources.length > 0 ? (
+            <p className="plugin-panel__market-sources">
+              {market.sources.map((source) => {
+                const stateLabel = source.used
+                  ? t("pluginPanel.market.sourceUsed")
+                  : source.ok
+                    ? t("pluginPanel.market.sourceStandby")
+                    : t("pluginPanel.market.sourceDead");
+                return (
+                  <span
+                    key={source.url}
+                    className={`plugin-panel__source-badge${source.used ? " is-used" : source.ok ? " is-standby" : " is-dead"}`}
+                    title={source.url}
+                  >
+                    {`${marketSourceLabel(source.url)} · ${stateLabel}`}
+                  </span>
+                );
+              })}
+            </p>
+          ) : null}
         </div>
         <div className="plugin-panel__header-actions">
           <button

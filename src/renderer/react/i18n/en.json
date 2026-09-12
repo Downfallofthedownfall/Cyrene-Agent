@@ -277,7 +277,10 @@
       "downloads": "{{downloads}} downloads",
       "loadFailed": "Couldn't load plugin list: {{error}}",
       "installFailed": "Install failed: {{error}}",
-      "installSuccess": "\"{{name}}\" installed successfully. It's disabled by default — enable it from the plugin list."
+      "installSuccess": "\"{{name}}\" installed successfully. It's disabled by default — enable it from the plugin list.",
+      "sourceUsed": "active",
+      "sourceStandby": "standby",
+      "sourceDead": "dead"
     }
   },
   "toolPanel": {

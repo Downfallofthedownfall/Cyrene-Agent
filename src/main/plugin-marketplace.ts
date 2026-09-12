@@ -8,12 +8,14 @@ import type {
   MarketInstallResult,
   MarketListResult,
   MarketPluginEntry,
+  MarketSourceStatus,
 } from "../shared/plugin-management";
 import type { PluginImportResult } from "../plugins/manager";
 
-/** 官方插件市场索引源：Gitee 镜像直连（GitHub 账号申诉期间作为唯一分发源） */
+/** 官方插件市场索引源：Gitee 镜像为主源，GitHub raw 为兜底；市场面板会实时探测各源死活并展示 */
 export const MARKET_REGISTRY_URLS = [
   "https://gitee.com/playa0/cyrene-plugins/raw/main/registry.json",
+  "https://raw.githubusercontent.com/Playa-0v0/Cyrene-Plugins/main/registry.json",
 ] as const;
 
 /** 插件包只允许来自官方仓库 zips/ 目录的直链，防止索引被篡改后下载任意来源的包 */
@@ -177,30 +179,53 @@ export function createPluginMarketplaceService(deps: PluginMarketplaceDeps) {
 
   async function listMarket(): Promise<MarketListResult> {
     const seq = ++listSeq;
+    // 并发探测所有源：拿到每个源的死活状态供面板展示，数据取优先级最高的可用源
+    const probes = await Promise.all(
+      deps.registryUrls.map(async (url) => {
+        try {
+          return { url, data: await fetchRegistryJson(url) } as const;
+        } catch (error) {
+          return { url, failure: errorMessage(error) } as const;
+        }
+      }),
+    );
+    const sources: MarketSourceStatus[] = [];
     const failures: string[] = [];
     let sawUnsupported = false;
-    for (const url of deps.registryUrls) {
+    let chosen: { plugins: MarketPluginEntry[]; snapshot: Map<string, MarketSnapshotEntry> } | null = null;
+    for (const probe of probes) {
+      if ("failure" in probe) {
+        sources.push({ url: probe.url, ok: false, used: false });
+        failures.push(`${probe.url}: ${probe.failure}`);
+        continue;
+      }
       try {
-        const data = await fetchRegistryJson(url);
-        const parsed = validateRegistry(data, deps);
-        if (seq === listSeq) {
-          // 只有最新一次请求才能落快照；过期响应的结果直接交还发起方但不改变状态
-          snapshot = parsed.snapshot;
-        }
-        return { ok: true, plugins: parsed.plugins };
+        const parsed = validateRegistry(probe.data, deps);
+        // 第一个通过校验的源作为数据源，其余可用源仅作展示（standby）
+        const used = chosen === null;
+        sources.push({ url: probe.url, ok: true, used });
+        if (used) chosen = parsed;
       } catch (error) {
-        failures.push(`${url}: ${errorMessage(error)}`);
+        sources.push({ url: probe.url, ok: false, used: false });
+        failures.push(`${probe.url}: ${errorMessage(error)}`);
         if (error instanceof RegistryFormatError && error.kind === "unsupported") {
           sawUnsupported = true;
         }
       }
+    }
+    if (chosen) {
+      if (seq === listSeq) {
+        // 只有最新一次请求才能落快照；过期响应的结果直接交还发起方但不改变状态
+        snapshot = chosen.snapshot;
+      }
+      return { ok: true, plugins: chosen.plugins, sources };
     }
     // 刷新失败清空快照：只有当前 UI 成功看到的列表才允许触发安装
     if (seq === listSeq) snapshot = null;
     const error = sawUnsupported
       ? "插件市场版本不受当前客户端支持，请更新应用"
       : `暂时无法获取插件列表: ${failures.join("；")}`;
-    return { ok: false, error, plugins: [] };
+    return { ok: false, error, plugins: [], sources };
   }
 
   async function sha256File(file: string): Promise<string> {
