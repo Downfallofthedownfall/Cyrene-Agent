@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "n
 import type { Dirent } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { SEMVER_PATTERN } from "../shared/version";
 import { CURRENT_PLUGIN_API_VERSION } from "./api";
 import { validateManifestData } from "./manifest-validation";
 import type {
@@ -17,7 +18,8 @@ const MANIFEST_FILE = "manifest.json";
 /** 插件 id 语法：小写字母数字 + 连字符分段；必须保持 host-safe（充当 cyrene-plugin:// 的 origin host）。 */
 export const PLUGIN_ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const ID_RE = PLUGIN_ID_RE;
-const SEMVER_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+// 版本规则统一来自 shared/version（与插件市场同一份），不再维护本地副本
+const SEMVER_RE = SEMVER_PATTERN;
 const ENTRY_EXTENSIONS = new Set([".cjs", ".js", ".mjs"]);
 const ICON_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".svg"]);
 const ICON_MAX_BYTES = 2 * 1024 * 1024;
