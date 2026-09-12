@@ -16,6 +16,7 @@ import type {
   PopQuizGradedQuestion,
   PopQuizSubmission,
 } from "../../../../../shared/pop-quiz";
+import { MarkdownContent } from "./ChatMessageList";
 import "./RunExperience.css";
 import moodWarmUrl from "../../../assets/status-moods/温柔.png?url";
 import moodCompanyUrl from "../../../assets/status-moods/陪伴中.png?url";
@@ -90,8 +91,14 @@ export function AskUserPanel({
           </nav>
         )}
       </div>
-      {interaction.intro && <p className="cy-interaction-panel__intro">{interaction.intro}</p>}
-      <p className="cy-interaction-panel__question">{current.question}</p>
+      {interaction.intro && (
+        <div className="cy-interaction-panel__intro">
+          <MarkdownContent content={interaction.intro} />
+        </div>
+      )}
+      <div className="cy-interaction-panel__question">
+        <MarkdownContent content={current.question} />
+      </div>
       {current.options.length > 0 && (
         <div className="cy-interaction-panel__options" role={current.multiple ? "group" : "radiogroup"} aria-label={current.question}>
           {current.options.map((option, index) => (
@@ -107,10 +114,10 @@ export function AskUserPanel({
               }}
             >
               <span className="cy-interaction-panel__option-index">{index + 1}.</span>
-              <span>
-                <strong>{option.label}</strong>
+              <div className="cy-interaction-panel__option-body">
+                <MarkdownContent content={option.label} />
                 {option.description && <small>{option.description}</small>}
-              </span>
+              </div>
             </button>
           ))}
         </div>
@@ -321,25 +328,29 @@ export function PopQuizPanel({
               : userDraft?.text?.trim() || "—";
             return (
               <div key={question.id} className={`cy-quiz-graded__item is-${grading}`}>
-                <p className="cy-interaction-panel__question">{question.question}</p>
+                <div className="cy-interaction-panel__question">
+                  <MarkdownContent content={question.question} />
+                </div>
                 <div className="cy-quiz-graded__meta">
                   <span className={`cy-quiz-badge is-${grading}`}>
                     {grading === "correct" ? t("interaction.quizGradedCorrect")
                       : grading === "incorrect" ? t("interaction.quizGradedIncorrect")
                       : t("interaction.quizGradedPending")}
                   </span>
-                  <span className="cy-quiz-graded__answer">
-                    {t("interaction.quizYourAnswer")}：{userAnswer}
-                  </span>
+                  <div className="cy-quiz-graded__answer">
+                    {t("interaction.quizYourAnswer")}：<MarkdownContent content={userAnswer} />
+                  </div>
                   {result?.correctAnswer !== undefined && (
-                    <span className="cy-quiz-graded__answer">
-                      {t("interaction.quizCorrectAnswer")}：{describeQuizAnswerValue(question, result.correctAnswer, { true: t("interaction.quizTrueLabel"), false: t("interaction.quizFalseLabel") })}
-                    </span>
+                    <div className="cy-quiz-graded__answer">
+                      {t("interaction.quizCorrectAnswer")}：<MarkdownContent content={describeQuizAnswerValue(question, result.correctAnswer, { true: t("interaction.quizTrueLabel"), false: t("interaction.quizFalseLabel") })} />
+                    </div>
                   )}
                 </div>
                 {/* 简答题不立即展示解析：标准答案要点由 Cyrene 讲评时给出，避免剧透 */}
                 {result?.explanation && grading !== "pending_model" && (
-                  <p className="cy-quiz-graded__explanation">{result.explanation}</p>
+                  <div className="cy-quiz-graded__explanation">
+                    <MarkdownContent content={result.explanation} />
+                  </div>
                 )}
                 {grading === "pending_model" && (
                   <p className="cy-quiz-graded__pending">{t("interaction.quizPendingHint")}</p>
@@ -367,9 +378,13 @@ export function PopQuizPanel({
         )}
       </div>
       {interaction.intro && <p className="cy-interaction-panel__intro">{interaction.intro}</p>}
-      <p className="cy-interaction-panel__question">{current.question}</p>
+      <div className="cy-interaction-panel__question">
+        <MarkdownContent content={current.question} />
+      </div>
       {current.learningObjective && (
-        <p className="cy-quiz-objective">{t("interaction.quizObjectiveLabel")}：{current.learningObjective}</p>
+        <div className="cy-quiz-objective">
+          {t("interaction.quizObjectiveLabel")}：<MarkdownContent content={current.learningObjective} />
+        </div>
       )}
       {(current.type === "choice" || current.type === "multi") && (
         <div className="cy-interaction-panel__options" role={current.type === "multi" ? "group" : "radiogroup"} aria-label={current.question}>
@@ -400,7 +415,9 @@ export function PopQuizPanel({
                 }}
               >
                 <span className="cy-interaction-panel__option-index">{index + 1}.</span>
-                <span><strong>{option.label}</strong></span>
+                <div className="cy-interaction-panel__option-body">
+                  <MarkdownContent content={option.label} />
+                </div>
               </button>
             );
           })}

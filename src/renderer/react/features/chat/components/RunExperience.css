@@ -251,6 +251,15 @@
 .cy-interaction-panel__options strong { display: inline; font: 500 13px/1.45 var(--rb-font-sans, sans-serif); }
 .cy-interaction-panel__options small { display: inline; margin-left: 7px; color: var(--cy-text-muted, #817b82); font: 400 12px/1.45 var(--rb-font-sans, sans-serif); }
 
+/* 卡片内的 Markdown/LaTeX：题干、介绍走消息同款渲染，字号行高跟随卡片原有排版 */
+.cy-interaction-panel__intro .cy-message-markdown,
+.cy-interaction-panel__question .cy-message-markdown { font: inherit; }
+
+/* 选项正文：压平为行内排版，公式/加粗等富文本不破坏按钮栅格 */
+.cy-interaction-panel__option-body { min-width: 0; }
+.cy-interaction-panel__option-body .cy-message-markdown { display: inline; font: 500 13px/1.45 var(--rb-font-sans, sans-serif); }
+.cy-interaction-panel__option-body .cy-message-markdown p { display: inline; margin: 0; }
+
 .cy-interaction-panel__custom-answer { display: grid; gap: 6px; margin-top: 9px; color: var(--cy-text-muted, #817b82); font: 500 12px/1.2 var(--rb-font-sans, sans-serif); }
 .cy-interaction-panel__custom-answer input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid var(--cy-border, #e7e2e5); border-radius: 9px; color: var(--cy-text, #2f2d31); font: 400 13px/1.4 var(--rb-font-sans, sans-serif); outline: none; }
 .cy-interaction-panel__custom-answer input:focus { border-color: rgba(255, 91, 138, .5); box-shadow: 0 0 0 3px rgb(255 91 138 / 10%); }
@@ -279,6 +288,10 @@
   margin-right: 5px;
   color: var(--cy-accent, #ff5b8a);
 }
+
+/* 考察知识点正文：走 Markdown 渲染但压平为行内，跟随标签的弱化字号 */
+.cy-quiz-objective .cy-message-markdown { display: inline; font: inherit; }
+.cy-quiz-objective .cy-message-markdown p { display: inline; margin: 0; }
 
 /* 简答题输入框：与 ask 自定义回答同款观感 */
 .cy-quiz-short-answer {
@@ -341,6 +354,10 @@
 
 .cy-quiz-graded__answer { color: var(--cy-text-muted, #817b82); font: 400 12px/1.5 var(--rb-font-sans, sans-serif); }
 
+/* 作答/答案行：选项可能是公式，走行内 Markdown 渲染 */
+.cy-quiz-graded__answer .cy-message-markdown { display: inline; font: inherit; }
+.cy-quiz-graded__answer .cy-message-markdown p { display: inline; margin: 0; }
+
 .cy-quiz-graded__explanation {
   margin: 8px 0 0;
   padding: 8px 10px;
@@ -349,6 +366,9 @@
   color: var(--cy-text, #4a444b);
   font: 400 12px/1.6 var(--rb-font-sans, sans-serif);
 }
+
+/* 解析正文：走消息同款 Markdown 渲染，字号跟随卡片原有小字排版 */
+.cy-quiz-graded__explanation .cy-message-markdown { font: inherit; }
 
 .cy-quiz-graded__pending { margin: 8px 0 0; color: var(--cy-text-muted, #999199); font: 400 12px/1.5 var(--rb-font-sans, sans-serif); }
 
