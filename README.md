@@ -8,6 +8,11 @@
   <a href="./README.en.md">English</a> | <strong>中文</strong>
 </p>
 
+<p align="center">
+  <strong>主仓库</strong>：<a href="https://github.com/Playa-0v0/Cyrene-Agent">GitHub</a> ・
+  <strong>国内镜像</strong>：<a href="https://gitee.com/playa0/cyrene-agent">Gitee</a>
+</p>
+
 
 **Cyrene-Agent 是一个以《崩坏：星穹铁道》昔涟为核心角色的 Windows Live2D AI 桌面伴侣。**
 
@@ -108,7 +113,12 @@ rustup default stable-x86_64-pc-windows-msvc
 ### 1. 克隆项目
 
 ```bash
+# GitHub（主仓库）
 git clone https://github.com/Playa-0v0/Cyrene-Agent.git
+
+# 或 Gitee（国内镜像）
+git clone https://gitee.com/playa0/cyrene-agent.git
+
 cd Cyrene-Agent
 ```
 
@@ -396,7 +406,7 @@ Cyrene 内置和扩展的工具较多，主要覆盖以下类别：
 - **信任边界** — 用户插件首次发现一律停用，需在设置页手动启用；插件创建的定时任务必须用户核对配置后才生效；语音输入通过独占租约避免双输入源冲突。
 - **开发者工具链** — npm 包 [`@playa0v0/cyrene-plugin-sdk`](https://www.npmjs.com/package/@playa0v0/cyrene-plugin-sdk) 提供全部公开类型、Manifest 校验与 Mock Context 测试工具，运行时仅依赖 `ajv`；配套《[插件开发指南](docs/plugins/plugin-dev-guide.md)》与 `cyrene-plugin-dev` Skill，无需阅读宿主源码即可完成开发。
 - **官方示例** — 仓库 [`examples/`](./examples) 提供天气查询、长期记忆、定时自动化与本地 ASR 契约四个示例，均可直接作为开发起点。
-- **插件收录仓库** — [Cyrene-Plugins](https://github.com/Playa-0v0/Cyrene-Plugins) 收录经安全审核的社区插件，用户可直接下载 ZIP 导入；想让你的插件被更多人看到，欢迎提 PR 收录。
+- **插件收录仓库** — [Cyrene-Plugins](https://github.com/Playa-0v0/Cyrene-Plugins)（[Gitee 镜像](https://gitee.com/playa0/cyrene-plugins)）收录经安全审核的社区插件，用户可直接下载 ZIP 导入；想让你的插件被更多人看到，欢迎提 PR 收录。
 
 #### 🌙 主动聊天
 
