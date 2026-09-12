@@ -114,6 +114,8 @@ verify-*.js
 verify-*.png
 verify-*.html
 test-output/
+# Playwright 验证截图等本地运行产物
+output/
 scripts/test-action-gate-anthropic.mjs
 scripts/test-action-gate-contract.mjs
 scripts/test-cita-fc-compare.mjs
