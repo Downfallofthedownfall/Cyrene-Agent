@@ -114,10 +114,19 @@ body {
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 120ms ease;
 }
 
-.nav-item span {
+.nav-item > span:first-child {
+  flex: 0 0 18px;
   width: 18px;
   text-align: center;
   filter: drop-shadow(0 0 5px rgba(236, 72, 153, 0.35));
+}
+
+.nav-item > [data-i18n] {
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+  text-align: left;
+  filter: none;
 }
 
 .nav-item svg.nav-item__icon {
@@ -476,6 +485,16 @@ body {
   color: rgba(255, 182, 220, 0.85);
   box-shadow: none;
   border: 1px solid rgba(255, 182, 220, 0.32);
+}
+
+#custom-style-sampling-btn,
+#custom-style-prompt-btn {
+  color: #fff;
+}
+
+#custom-style-sampling-btn > span,
+#custom-style-prompt-btn > span {
+  color: #fff;
 }
 .save-btn--ghost:hover:not(:disabled) {
   background: rgba(255, 110, 199, 0.10);
@@ -4547,6 +4566,7 @@ body {
 .music-search-row__play {
   margin: 0;
 }
+
 /* ===== 插件设置面板（动态挂载的 sandbox iframe 卡片） ===== */
 .plugin-panels {
   display: grid;

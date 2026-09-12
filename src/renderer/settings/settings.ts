@@ -58,9 +58,9 @@ import type {
 import { musicState } from "./music/state";
 import { musicHomeView, musicReturnBtn, musicSearchForm, musicSearchHint, musicQrStatus, musicProfileAvatar, musicLoginBtn, musicCancelBtn, musicDisconnectBtn, musicQrImg, musicQrTip, musicQrBox, musicFeedbackEl, musicAccountStatusText, musicSearchInput, musicSearchBtn, musicSearchResults, musicToggle, musicAccordionCard, musicAccordionBody } from "./music/dom";
 import { channelsState } from "./channels/state";
+import { mountPluginPanels } from "./plugin-panels";
 import { channelsWechatEnabledEl, channelsFeishuEnabledEl, channelsWechatStatusEl, channelsFeishuStatusEl, channelsRateUserEl, channelsRateChannelEl, channelsTtsEl, channelsStickerEl, channelsMirrorEl, channelsToolSandboxOffEl, channelsToolSandboxAllEl, channelsFeishuAppIdEl, channelsFeishuAppSecretEl, channelsFeishuAppSecretRevealBtn, channelsFeishuSaveBtn, channelsWechatLoginBtn, channelsWechatRestartBtn, channelsWechatFeedbackEl, channelsFeishuFeedbackEl, channelsLogListEl, channelsLogRefreshBtn, channelsLogClearBtn } from "./channels/dom";
 import { memoryState } from "./memory/state";
-import { mountPluginPanels } from "./plugin-panels";
 import { memoryL0NameInput, memoryL0OccupationInput, memoryL0InterestsInput, memoryL0LanguageInput, memoryL0NoteInput, memoryL1GoalsInput, memoryL1PreferencesInput, memoryL1ProjectInput, memoryL2SearchInput, memoryL2List, memoryImportedList, memoryReflectionList, memoryL0EditBtn, memoryL0CancelBtn, memoryL1EditBtn, memoryL1CancelBtn } from "./memory/dom";
 import { schedulerState } from "./scheduler/state";
 import { schedulerNewBtn, schedulerEmpty, schedulerList, schedulerEditor, schedulerEditorTitle, schedulerEditorClose, schedulerTitleInput, schedulerPromptInput, schedulerEnabledInput, schedulerKindInput, schedulerOnceRunAtInput, schedulerTimeOfDayInput, schedulerDayOfWeekInput, schedulerIntervalEveryInput, schedulerIntervalUnitInput, schedulerToolLimitInput, schedulerToolPicker, schedulerToolEmptyHint, schedulerSaveStatus, schedulerCancelBtn, schedulerSaveBtn } from "./scheduler/dom";
@@ -128,6 +128,7 @@ import "./rag/panel";  // 副作用导入：RAG 模型切换 + Embedding 下载/
 import "./preferences/panel";  // 副作用导入：截图热键捕获 + 表情包列表/添加/删除
 import "./mcp/panel";  // 副作用导入：MCP Server 添加/删除/启停 + 自定义端点接入说明
 import "./tokens/panel";  // 副作用导入：Token 用量图表 + 时间范围切换
+import { t } from "./i18n";
 
 // Inline modal (to avoid Vite tree-shaking)
 
@@ -310,19 +311,19 @@ document.querySelectorAll<HTMLImageElement>("[data-music-logo]").forEach((image)
 
 
 const NAV_LABELS: Record<string, { emoji: string; title: string; hint: string }> = {
-  memory: { emoji: `<img src="../icons/mimi.png" width="24" height="24" alt="" aria-hidden="true" style="vertical-align:-3px" />`, title: "记忆", hint: "管理长期记忆与画像" },
-  chat: { emoji: `<svg style="vertical-align:-3px" width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M33 38H22V30H36V22H44V38H39L36 41L33 38Z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 6H36V30H17L13 34L9 30H4V6Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 18H20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M26 18H27" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M12 18H13" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`, title: "聊天", hint: "管理聊天窗口与会话" },
-  user: { emoji: `<svg style="vertical-align:-3px" width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M44 8H4V38H19L24 43L29 38H44V8Z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="19" r="5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 32C33 27.5817 28.9706 24 24 24C19.0294 24 15 27.5817 15 32" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`, title: "用户信息", hint: "编辑你的个人资料" },
-  tasks: { emoji: `<svg style="vertical-align:-3px" width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M23.9998 44.3332C34.1251 44.3332 42.3332 36.1251 42.3332 25.9999C42.3332 15.8747 34.1251 7.66656 23.9998 7.66656C13.8746 7.66656 5.6665 15.8747 5.6665 25.9999C5.6665 36.1251 13.8746 44.3332 23.9998 44.3332Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M23.7594 15.3536L23.7582 26.3624L31.5305 34.1347" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9.00001L11 4.00001" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 9.00001L37 4.00001" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`, title: "定时任务", hint: "管理定时提醒与日程" },
-  plugins: { emoji: "🔌", title: "工具配置", hint: "管理昔涟可调用的工具能力" },
+  memory: { emoji: `<img src="../icons/mimi.png" width="24" height="24" alt="" aria-hidden="true" style="vertical-align:-3px" />`, title: t("settings.nav.memory"), hint: t("settings.nav.memoryHint") },
+  chat: { emoji: `<svg style="vertical-align:-3px" width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M33 38H22V30H36V22H44V38H39L36 41L33 38Z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 6H36V30H17L13 34L9 30H4V6Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 18H20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M26 18H27" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M12 18H13" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`, title: t("settings.nav.chat"), hint: t("settings.nav.chatHint") },
+  user: { emoji: `<svg style="vertical-align:-3px" width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M44 8H4V38H19L24 43L29 38H44V8Z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="19" r="5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 32C33 27.5817 28.9706 24 24 24C19.0294 24 15 27.5817 15 32" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`, title: t("settings.nav.user"), hint: t("settings.nav.userHint") },
+  tasks: { emoji: `<svg style="vertical-align:-3px" width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M23.9998 44.3332C34.1251 44.3332 42.3332 36.1251 42.3332 25.9999C42.3332 15.8747 34.1251 7.66656 23.9998 7.66656C13.8746 7.66656 5.6665 15.8747 5.6665 25.9999C5.6665 36.1251 13.8746 44.3332 23.9998 44.3332Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M23.7594 15.3536L23.7582 26.3624L31.5305 34.1347" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9.00001L11 4.00001" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 9.00001L37 4.00001" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`, title: t("settings.nav.tasks"), hint: t("settings.nav.tasksHint") },
+  plugins: { emoji: "🔌", title: t("settings.nav.plugins"), hint: t("settings.nav.pluginsHint") },
   preferences: { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>偏好设置</title><path d="M12 35.0137H9H4V8.01273C4 6.90868 4.89543 6.01367 6 6.01367H42C43.1046 6.01367 44 6.90868 44 8.01273V35.0137H36" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 32L14 42H34L24 32Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`, title: "偏好设置", hint: "设置聊天窗口和输出行为的默认偏好" },
   appearance: { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>外观设置</title><path d="M24 44C29.9601 44 26.3359 35.136 30 31C33.1264 27.4709 44 29.0856 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M28 17C29.6569 17 31 15.6569 31 14C31 12.3431 29.6569 11 28 11C26.3431 11 25 12.3431 25 14C25 15.6569 26.3431 17 28 17Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M16 21C17.6569 21 19 19.6569 19 18C19 16.3431 17.6569 15 16 15C14.3431 15 13 16.3431 13 18C13 19.6569 14.3431 21 16 21Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M17 34C18.6569 34 20 32.6569 20 31C20 29.3431 18.6569 28 17 28C15.3431 28 14 29.3431 14 31C14 32.6569 15.3431 34 17 34Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`, title: "外观设置", hint: "调整窗口布局、界面主题与昔涟桌宠" },
   general: { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>通用设置</title><path d="M18.2838 43.1713C14.9327 42.1736 11.9498 40.3213 9.58787 37.867C10.469 36.8227 11 35.4734 11 34.0001C11 30.6864 8.31371 28.0001 5 28.0001C4.79955 28.0001 4.60139 28.01 4.40599 28.0292C4.13979 26.7277 4 25.3803 4 24.0001C4 21.9095 4.32077 19.8938 4.91579 17.9995C4.94381 17.9999 4.97188 18.0001 5 18.0001C8.31371 18.0001 11 15.3138 11 12.0001C11 11.0488 10.7786 10.1493 10.3846 9.35011C12.6975 7.1995 15.5205 5.59002 18.6521 4.72314C19.6444 6.66819 21.6667 8.00013 24 8.00013C26.3333 8.00013 28.3556 6.66819 29.3479 4.72314C32.4795 5.59002 35.3025 7.1995 37.6154 9.35011C37.2214 10.1493 37 11.0488 37 12.0001C37 15.3138 39.6863 18.0001 43 18.0001C43.0281 18.0001 43.0562 17.9999 43.0842 17.9995C43.6792 19.8938 44 21.9095 44 24.0001C44 25.3803 43.8602 26.7277 43.594 28.0292C43.3986 28.01 43.2005 28.0001 43 28.0001C39.6863 28.0001 37 30.6864 37 34.0001C37 35.4734 37.531 36.8227 38.4121 37.867C36.0502 40.3213 33.0673 42.1736 29.7162 43.1713C28.9428 40.752 26.676 39.0001 24 39.0001C21.324 39.0001 19.0572 40.752 18.2838 43.1713Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`, title: "通用设置", hint: "管理窗口、音频和系统行为" },
   api: { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>API 设置</title><g clip-path="url(#api-key-nav-clip)"><circle cx="15" cy="33" r="8" fill="none" stroke="currentColor" stroke-width="4"/><path d="M29 16L35.5 22" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 26L37 7" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 11L42 17.5" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="api-key-nav-clip"><rect width="48" height="48" fill="none"/></clipPath></defs></svg>`, title: "API 设置", hint: "选择预设后只需要填写 API Key。" },
   "api-advanced": { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>高级设置</title><path d="M34.0003 41L44 24L34.0003 7H14.0002L4 24L14.0002 41H34.0003Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M24 29C26.7614 29 29 26.7614 29 24C29 21.2386 26.7614 19 24 19C21.2386 19 19 21.2386 19 24C19 26.7614 21.2386 29 24 29Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`, title: "高级设置", hint: "配置 API 超时时间、调用模式．" },
-  cyrene: { emoji: "🌸", title: "昔涟设置", hint: "管理 Agent 行为、记忆、RAG 与权限" },
-  tts: { emoji: "🎙️", title: "TTS 设置", hint: "语音合成与朗读偏好" },
-  asr: { emoji: "🎧", title: "ASR 设置", hint: "语音识别与通话配置" },
+  cyrene: { emoji: "🌸", title: t("settings.nav.cyrene"), hint: t("settings.nav.cyreneHint") },
+  tts: { emoji: "🎙️", title: t("settings.nav.tts"), hint: t("settings.nav.ttsHint") },
+  asr: { emoji: "🎧", title: t("settings.nav.asr"), hint: t("settings.nav.asrHint") },
 	  tokens: { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>Token 用量</title><path d="M4 42H44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="28" width="6" height="14" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="18" width="6" height="24" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><rect x="34" y="6" width="6" height="36" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`, title: "Token 用量", hint: "查看 API 调用统计与消耗" },
 	  disclaimer: { emoji: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="vertical-align:-3px"><title>免责声明</title><rect x="13" y="10" width="28" height="34" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M35 10V4H8C7.44772 4 7 4.44772 7 5V38H13" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 22H33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 30H33" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`, title: "免责声明", hint: "使用条款与隐私说明" },
 };
@@ -334,14 +335,14 @@ closeBtn.addEventListener("click", () => window.settings?.close());
 
 
 
-async function saveAppearancePatch(patch: Partial<GeneralSettings>, successText = "已自动应用"): Promise<void> {
+async function saveAppearancePatch(patch: Partial<GeneralSettings>, successText = t("settings.status.applied")): Promise<void> {
   try {
-    setAppearanceSaveStatus("应用中…");
+    setAppearanceSaveStatus(t("settings.status.applying"));
     await window.settings!.saveGeneral(patch);
     setAppearanceSaveStatus(successText, "is-ok");
   } catch (error) {
     console.error("自动应用外观设置失败:", error);
-    setAppearanceSaveStatus("自动应用失败", "is-error");
+    setAppearanceSaveStatus(t("settings.status.applyFailed"), "is-error");
   }
 }
 
@@ -527,9 +528,9 @@ function ensureCustomStyleModal(): HTMLElement {
       preferencesState.currentCustomStyleConfig = buildCustomStyleConfigFromModal();
       await window.settings!.saveGeneral({ customStyle: preferencesState.currentCustomStyleConfig });
       preferencesState.customStyleOverlay?.classList.add("is-hidden");
-      setPreferencesSaveStatus("自定义风格已保存", "is-ok");
+      setPreferencesSaveStatus(t("settings.modal.customStyle.saved"), "is-ok");
     } catch {
-      setPreferencesSaveStatus("自定义风格保存失败", "is-error");
+      setPreferencesSaveStatus(t("settings.modal.customStyle.saveFailed"), "is-error");
     }
   });
   return preferencesState.customStyleOverlay;
@@ -575,7 +576,7 @@ function renderMomentsSubRowsVisibility(): void {
 
 
 function renderUiFont(font: UiFont): void {
-  uiFontCurrent.textContent = font.kind === "custom" ? font.displayName : "思源黑体（默认）";
+  uiFontCurrent.textContent = font.kind === "custom" ? font.displayName : t("settings.appearance.font.defaultNotion");
   uiFontResetButton.hidden = font.kind !== "custom";
 }
 
@@ -622,7 +623,7 @@ function fillPresetOptions(): void {
     const label = document.createElement("span");
     label.className = "preset-card__name";
     label.textContent = preset.shortName;
-    if (preset.disabled) label.textContent += "（暂未适配）";
+    if (preset.disabled) label.textContent += t("settings.preset.disabledSuffix");
     card.appendChild(label);
 
     presetCards.appendChild(card);
@@ -688,12 +689,12 @@ function renderProfileList(): void {
   if (!profileList) return;
   profileList.replaceChildren();
   const count = apiState.profiles.length;
-  profileListCount.textContent = count ? `${count} 个档案` : "";
+  profileListCount.textContent = count ? t("settings.profile.count", { count }) : "";
 
   if (count === 0) {
     const empty = document.createElement("div");
     empty.className = "profile-list__empty";
-    empty.textContent = "还没有档案。选下方厂商预设新建一个，保存后会出现在这里。";
+    empty.textContent = t("settings.profile.empty");
     profileList.appendChild(empty);
     return;
   }
@@ -722,13 +723,13 @@ function renderProfileList(): void {
     if (isDefault) {
       const badge = document.createElement("span");
       badge.className = "profile-card__badge";
-      badge.textContent = "默认";
+      badge.textContent = t("settings.profile.badge.default");
       badges.appendChild(badge);
     }
     if (profile.multimodal === true) {
       const badge = document.createElement("span");
       badge.className = "profile-card__badge profile-card__badge--vision";
-      badge.textContent = "多模态";
+      badge.textContent = t("settings.profile.badge.vision");
       badges.appendChild(badge);
     }
     card.appendChild(badges);
@@ -748,7 +749,7 @@ async function reloadProfiles(): Promise<void> {
 
 /** 编辑状态 UI：标题 + 删除按钮可见性。 */
 function applyEditingStateUI(): void {
-  profileEditorTitle.textContent = apiState.editingProfileId ? "编辑档案" : "新建档案";
+  profileEditorTitle.textContent = apiState.editingProfileId ? t("settings.profile.editorTitle.edit") : t("settings.profile.editorTitle.new");
   deleteProfileBtn.hidden = !apiState.editingProfileId;
 }
 
@@ -772,7 +773,7 @@ function editProfile(profile: SavedProfileLite, globalMultimodal: boolean): void
   applyMultimodalUI();
   applyEditingStateUI();
   renderProfileList();
-  setSaveStatus(`正在编辑「${profile.displayName || profile.model}」`);
+  setSaveStatus(t("settings.profile.editing", { name: profile.displayName || profile.model }));
 }
 
 /** 开始新建草稿：preset 预填 URL/模型/协议，清空 Key 与昵称。 */
@@ -842,14 +843,17 @@ function updateEndpointPreview(): void {
       : "/chat/completions";
 
   if (!baseUrl) {
-    endpointPreview.textContent = `程序会按所选协议自动追加请求路径（默认 ${defaultSuffix}）。`;
+    endpointPreview.textContent = t("settings.api.endpointPreview.default", { defaultSuffix });
     return;
   }
 
   const endpoint = resolveApiEndpoint(baseUrl, transport);
   endpointPreview.textContent = endpoint.appendedSuffix
-    ? `程序会自动追加 ${endpoint.appendedSuffix}；最终请求地址：${endpoint.url}`
-    : `已填写完整接口地址，不再追加后缀；最终请求地址：${endpoint.url}`;
+    ? t("settings.api.endpointPreview.suffix", {
+        appendedSuffix: endpoint.appendedSuffix,
+        url: endpoint.url,
+      })
+    : t("settings.api.endpointPreview.full", { url: endpoint.url });
 }
 
 function applyCustomEndpointUI(preset: ModelPreset): void {
@@ -860,13 +864,13 @@ function applyCustomEndpointUI(preset: ModelPreset): void {
 
   if (!mode) {
     apiKeyLabel.textContent = "API Key";
-    apiKeyHint.textContent = "填写对应平台创建的 API Key";
+    apiKeyHint.textContent = t("settings.api.keyHint.default");
     apiKeyInput.placeholder = "sk-...";
     baseUrlInput.placeholder = "https://api.deepseek.com";
-    modelInput.placeholder = "选厂商后自动填入，可手填覆盖";
-    transportHint.textContent = "请按服务商实际提供的接口类型选择（OpenAI 兼容 / Anthropic 兼容 / OpenAI Responses）；程序不会自动识别协议。";
-    baseUrlResetBtn.title = "重置为厂商默认 URL";
-    apiNoteText.textContent = "选择模型预设后会自动填入 Provider、Base URL 和模型名；你只需要填写对应平台的 API Key。配置只保存在本机 Electron 用户数据目录。";
+    modelInput.placeholder = t("settings.api.modelPlaceholder.default");
+    transportHint.textContent = t("settings.api.transportHint.default");
+    baseUrlResetBtn.title = t("settings.api.baseUrlResetTitle.default");
+    apiNoteText.textContent = t("settings.api.note.default");
     return;
   }
 
@@ -879,18 +883,18 @@ function applyCustomEndpointUI(preset: ModelPreset): void {
   });
 
   customEndpointSummary.textContent = mode === "local"
-    ? "填写本机模型服务地址并明确选择接口协议；不扫描端口，也不探测模型能力。"
-    : "接入兼容 OpenAI 或 Anthropic 协议的云端服务，能力由服务提供方决定。";
-  apiKeyLabel.textContent = presentation.apiKeyOptional ? "API Key（可选）" : "API Key";
+    ? t("settings.customEndpoint.localHint")
+    : t("settings.customEndpoint.cloudHint");
+  apiKeyLabel.textContent = presentation.apiKeyOptional ? t("settings.customEndpoint.apiKey.optional") : "API Key";
   apiKeyHint.textContent = presentation.apiKeyOptional
-    ? "本地服务无需鉴权时可留空；如网关要求令牌，请在此填写"
-    : "填写自定义服务或第三方代理提供的 API Key";
-  apiKeyInput.placeholder = presentation.apiKeyOptional ? "无需鉴权时留空" : "sk-...";
+    ? t("settings.customEndpoint.apiKey.localHint")
+    : t("settings.customEndpoint.apiKey.proxyHint");
+  apiKeyInput.placeholder = presentation.apiKeyOptional ? t("settings.customEndpoint.apiKey.optionalPlaceholder") : "sk-...";
   baseUrlInput.placeholder = presentation.baseUrlPlaceholder;
-  modelInput.placeholder = "填写服务实际提供的模型 ID";
-  transportHint.textContent = "请按自定义服务实际提供的接口类型选择；程序不会自动探测。";
-  baseUrlResetBtn.title = "清空自定义 Base URL";
-  apiNoteText.textContent = "自定义端点按保守兼容模式运行。保存后请先测试连接；连接成功不代表结构化输出、工具调用或思考模式一定可用。";
+  modelInput.placeholder = t("settings.customEndpoint.modelPlaceholder");
+  transportHint.textContent = t("settings.customEndpoint.transportHint");
+  baseUrlResetBtn.title = t("settings.customEndpoint.baseUrlResetTitle");
+  apiNoteText.textContent = t("settings.customEndpoint.note");
 }
 
 export function applyPreset(
@@ -962,7 +966,7 @@ export function applyPreset(
   // 官网链接：有 websiteUrl 就显示并指向，没有就隐藏。
   if (preset.websiteUrl) {
     presetWebsiteLink.href = preset.websiteUrl;
-    presetWebsiteLink.title = `前往 ${preset.shortName} 官网`;
+    presetWebsiteLink.title = t("settings.preset.websiteTitle", { shortName: preset.shortName });
     presetWebsiteLink.style.display = "";
   } else {
     presetWebsiteLink.style.display = "none";
@@ -1018,14 +1022,14 @@ async function loadConfig(): Promise<void> {
       applyEditingStateUI();
     }
 
-    setSaveStatus("等待保存");
-    setCyreneSaveStatus("等待保存");
+    setSaveStatus(t("settings.status.waiting"));
+    setCyreneSaveStatus(t("settings.status.waiting"));
   } catch {
     fillPresetOptions();
     // 默认厂商已从 DeepSeek 改为 MiniMax（v1 vendor adapter 第一家落地的）
-    applyPreset("MiniMax（稀宇科技）");
-    setSaveStatus("读取配置失败", "is-error");
-    setCyreneSaveStatus("读取配置失败", "is-error");
+    applyPreset(t("settings.default.provider"));
+    setSaveStatus(t("settings.status.readFailed"), "is-error");
+    setCyreneSaveStatus(t("settings.status.readFailed"), "is-error");
   }
 }
 
@@ -1081,13 +1085,13 @@ async function loadGeneralSettings(): Promise<void> {
       .then((status: unknown) => renderProactiveDeliveryAvailability(status as Record<string, { phase?: string }>))
       .catch(() => renderProactiveDeliveryAvailability({}));
     applyLanguageSelection("zh-CN");
-    setPreferencesSaveStatus("等待保存");
-    setAppearanceSaveStatus("等待保存");
-    setGeneralSaveStatus("等待保存");
+    setPreferencesSaveStatus(t("settings.status.waiting"));
+    setAppearanceSaveStatus(t("settings.status.waiting"));
+    setGeneralSaveStatus(t("settings.status.waiting"));
   } catch {
-    setPreferencesSaveStatus("读取偏好失败", "is-error");
-    setAppearanceSaveStatus("读取外观失败", "is-error");
-    setGeneralSaveStatus("读取设置失败", "is-error");
+    setPreferencesSaveStatus(t("settings.status.prefsReadFailed"), "is-error");
+    setAppearanceSaveStatus(t("settings.status.appearanceReadFailed"), "is-error");
+    setGeneralSaveStatus(t("settings.status.generalReadFailed"), "is-error");
   }
 }
 
@@ -1108,25 +1112,25 @@ runtimeSyncSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach((
     const value = button.dataset.value as "off" | "local" | "llm";
     applyRuntimeSyncSelection(value);
     window.settings?.previewRuntimeSync(value);
-    setCyreneSaveStatus("有未保存的更改");
+    setCyreneSaveStatus(t("settings.status.dirty"));
   });
 });
 
 stickerEnabledInput.addEventListener("change", () => {
-  setCyreneSaveStatus("有未保存的更改");
+  setCyreneSaveStatus(t("settings.status.dirty"));
 });
 
 stickerSizeSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach((button) => {
   button.addEventListener("click", () => {
     const value = button.dataset.value;
     applyStickerSizeSelection(value === "small" || value === "large" ? value : "standard");
-    setCyreneSaveStatus("有未保存的更改");
+    setCyreneSaveStatus(t("settings.status.dirty"));
   });
 });
 
 stickerThresholdInput.addEventListener("input", () => {
   stickerThresholdVal.textContent = parseFloat(stickerThresholdInput.value).toFixed(2);
-  setCyreneSaveStatus("有未保存的更改");
+  setCyreneSaveStatus(t("settings.status.dirty"));
 });
 
 openChromeGpu.addEventListener("click", () => {
@@ -1152,7 +1156,7 @@ tasksVisibleInput.addEventListener("change", () => {
 windowCornerRadiusInput.addEventListener("input", () => {
   const radius = applyWindowCornerRadius(windowCornerRadiusInput.value);
   windowCornerRadiusVal.textContent = `${radius}px`;
-  setAppearanceSaveStatus("松开后自动应用");
+  setAppearanceSaveStatus(t("settings.status.releaseApply"));
 });
 
 windowCornerRadiusInput.addEventListener("change", () => {
@@ -1162,7 +1166,7 @@ windowCornerRadiusInput.addEventListener("change", () => {
 
 petAlwaysOnTopInput.addEventListener("change", () => {
   window.settings?.setPetAlwaysOnTop(petAlwaysOnTopInput.checked);
-  setAppearanceSaveStatus("已应用", "is-ok");
+  setAppearanceSaveStatus(t("settings.status.appliedOk"), "is-ok");
 });
 
 uiFontImportButton.addEventListener("click", async () => {
@@ -1170,13 +1174,13 @@ uiFontImportButton.addEventListener("click", async () => {
     const sourcePath = await window.settings?.pickUiFont();
     if (!sourcePath) return;
     uiFontImportButton.disabled = true;
-    setAppearanceSaveStatus("正在导入字体…");
+    setAppearanceSaveStatus(t("settings.status.importingFont"));
     const font = await window.settings!.importUiFont(sourcePath);
     renderUiFont(font);
-    setAppearanceSaveStatus("字体已应用", "is-ok");
+    setAppearanceSaveStatus(t("settings.status.fontApplied"), "is-ok");
   } catch (error) {
     console.error("导入字体失败:", error);
-    setAppearanceSaveStatus("导入字体失败", "is-error");
+    setAppearanceSaveStatus(t("settings.status.importFontFailed"), "is-error");
   } finally {
     uiFontImportButton.disabled = false;
   }
@@ -1187,10 +1191,10 @@ uiFontResetButton.addEventListener("click", async () => {
     uiFontResetButton.disabled = true;
     const font = await window.settings!.resetUiFont();
     renderUiFont(font);
-    setAppearanceSaveStatus("已恢复思源黑体", "is-ok");
+    setAppearanceSaveStatus(t("settings.status.fontResetOk"), "is-ok");
   } catch (error) {
     console.error("恢复默认字体失败:", error);
-    setAppearanceSaveStatus("恢复默认字体失败", "is-error");
+    setAppearanceSaveStatus(t("settings.status.fontResetFailed"), "is-error");
   } finally {
     uiFontResetButton.disabled = false;
   }
@@ -1202,24 +1206,24 @@ uiIconSelect.querySelectorAll<HTMLButtonElement>(".appearance-icon-option").forE
     try {
       await window.settings!.saveGeneral({ uiIcon: icon });
       renderUiIcon(icon);
-      setAppearanceSaveStatus("图标已应用", "is-ok");
+      setAppearanceSaveStatus(t("settings.status.iconApplied"), "is-ok");
     } catch (error) {
       console.error("应用图标失败:", error);
-      setAppearanceSaveStatus("应用图标失败", "is-error");
+      setAppearanceSaveStatus(t("settings.status.iconFailed"), "is-error");
     }
   });
 });
 
 petVisibleInput.addEventListener("change", () => {
   window.settings?.setPetVisible(petVisibleInput.checked);
-  setAppearanceSaveStatus("已应用", "is-ok");
+  setAppearanceSaveStatus(t("settings.status.appliedOk"), "is-ok");
 });
 petZoomInput.addEventListener("input", () => {
   petZoomVal.textContent = Math.round(Number(petZoomInput.value) * 100) + "%";
 });
 petZoomInput.addEventListener("change", () => {
   window.settings?.setPetZoom(Number(petZoomInput.value));
-  setAppearanceSaveStatus("已应用", "is-ok");
+  setAppearanceSaveStatus(t("settings.status.appliedOk"), "is-ok");
 });
 
 // 行间距滑块
@@ -1227,7 +1231,7 @@ chatLineHeightInput.addEventListener("input", () => {
   const val = Number(chatLineHeightInput.value);
   chatLineHeightVal.textContent = val.toFixed(2);
   document.documentElement.style.setProperty("--rb-chat-line-height", String(val));
-  setAppearanceSaveStatus("松开后自动应用");
+  setAppearanceSaveStatus(t("settings.status.releaseApply"));
 });
 chatLineHeightInput.addEventListener("change", () => {
   void saveAppearancePatch({ chatLineHeight: Number(chatLineHeightInput.value) });
@@ -1240,7 +1244,7 @@ chatParaSpacingInput.addEventListener("input", () => {
   const val = Number(chatParaSpacingInput.value);
   chatParaSpacingVal.textContent = val.toFixed(2) + "em";
   document.documentElement.style.setProperty("--rb-chat-para-spacing", val + "em");
-  setAppearanceSaveStatus("松开后自动应用");
+  setAppearanceSaveStatus(t("settings.status.releaseApply"));
 });
 chatParaSpacingInput.addEventListener("change", () => {
   void saveAppearancePatch({ chatParaSpacing: Number(chatParaSpacingInput.value) });
@@ -1249,21 +1253,21 @@ chatParaSpacingInput.addEventListener("change", () => {
 defaultChatModeSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach((button) => {
   button.addEventListener("click", () => {
     applyDefaultChatModeSelection(normalizeDefaultChatMode(button.dataset.value));
-    setPreferencesSaveStatus("有未保存的更改");
+    setPreferencesSaveStatus(t("settings.status.dirty"));
   });
 });
 
 segmentedOutputSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach((button) => {
   button.addEventListener("click", () => {
     applySegmentedOutputSelection(normalizeSegmentedOutputMode(button.dataset.value));
-    setPreferencesSaveStatus("有未保存的更改");
+    setPreferencesSaveStatus(t("settings.status.dirty"));
   });
 });
 
 mobileMessageSegmentationSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach((button) => {
   button.addEventListener("click", () => {
     applyMobileMessageSegmentationSelection(normalizeMobileMessageSegmentationMode(button.dataset.value));
-    setPreferencesSaveStatus("有未保存的更改");
+    setPreferencesSaveStatus(t("settings.status.dirty"));
   });
 });
 
@@ -1271,14 +1275,14 @@ proactiveChatSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach
   button.addEventListener("click", () => {
     applyProactiveChatSelection(normalizeProactiveChatMode(button.dataset.value));
     renderProactiveDeliveryVisibility();
-    setPreferencesSaveStatus("有未保存的更改");
+    setPreferencesSaveStatus(t("settings.status.dirty"));
   });
 });
 
 momentsLivelinessSelect.querySelectorAll<HTMLButtonElement>(".option-block").forEach((button) => {
   button.addEventListener("click", () => {
     applyMomentsLivelinessSelection(button.dataset.value ?? "quiet");
-    setPreferencesSaveStatus("有未保存的更改");
+    setPreferencesSaveStatus(t("settings.status.dirty"));
   });
 });
 
@@ -1286,12 +1290,12 @@ proactiveDeliverySelect.querySelectorAll<HTMLButtonElement>(".option-block").for
   button.addEventListener("click", () => {
     if (button.disabled) return;
     applyProactiveDeliverySelection(normalizeProactiveDeliveryTarget(button.dataset.value));
-    setPreferencesSaveStatus("有未保存的更改");
+    setPreferencesSaveStatus(t("settings.status.dirty"));
   });
 });
 
 citaEnabledInput.addEventListener("change", () => {
-  setPreferencesSaveStatus("有未保存的更改");
+  setPreferencesSaveStatus(t("settings.status.dirty"));
 });
 
 
@@ -1339,7 +1343,7 @@ function buildWorkFlowAdaptBody(): string {
 
 workFlowAdaptBtn?.addEventListener("click", () => {
   void showHtmlModal({
-    title: "模型厂商 Work 流程适配",
+    title: t("settings.workFlow.adaptTitle"),
     icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5V17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.25" r="1.1" fill="currentColor"/></svg>',
     htmlBody: buildWorkFlowAdaptBody(),
   });
@@ -1358,12 +1362,12 @@ if (testConnectionBtn) {
       return;
     }
     const apiKey = getApiKeyForRequest();
-    if (!baseUrl) { setSaveStatus("请先填写 API URL 再测试", "is-error"); return; }
-    if (!model) { setSaveStatus("请先选择/填写模型再测试", "is-error"); return; }
+    if (!baseUrl) { setSaveStatus(t("settings.api.needUrlBeforeTest"), "is-error"); return; }
+    if (!model) { setSaveStatus(t("settings.api.needModelBeforeTest"), "is-error"); return; }
     if (!await saveTimeoutSettings(true)) {
       return;
     }
-    setSaveStatus("测试连接中…");
+    setSaveStatus(t("settings.api.testing"));
     btn.disabled = true;
     try {
       const result = await window.settings!.testConnection!({
@@ -1374,10 +1378,20 @@ if (testConnectionBtn) {
         explicitTransport: transportSelect.value as ProviderProfile["explicitTransport"],
         reasoning: apiState.editingReasoning,
       });
-      if (result.ok) setSaveStatus("连接成功 " + result.latency + "ms · " + (result.sample ?? ""), "is-ok");
-      else setSaveStatus("连接失败：" + (result.error ?? "未知错误"), "is-error");
+      if (result.ok) {
+        setSaveStatus(t("settings.api.testOk", {
+          latency: result.latency,
+          sample: result.sample ?? "",
+        }), "is-ok");
+      } else {
+        setSaveStatus(t("settings.api.testFailed", {
+          error: result.error ?? t("settings.api.unknownError"),
+        }), "is-error");
+      }
     } catch (e) {
-      setSaveStatus("连接失败：" + (e instanceof Error ? e.message : String(e)), "is-error");
+      setSaveStatus(t("settings.api.testFailed", {
+        error: e instanceof Error ? e.message : String(e),
+      }), "is-error");
     } finally {
       btn.disabled = false;
     }
@@ -1388,7 +1402,7 @@ if (testConnectionBtn) {
 // 多模态开关：ON 隐藏视觉配置区，OFF 显示
 multimodalToggle.addEventListener("change", () => {
   applyMultimodalUI();
-  setSaveStatus("有未保存的更改");
+  setSaveStatus(t("settings.status.dirty"));
 });
 
 // Base URL 重置按钮：一键复原厂商默认 baseUrl
@@ -1399,7 +1413,7 @@ baseUrlResetBtn.addEventListener("click", () => {
       ? preset.anthropicBaseUrl
       : preset.baseUrl;
     updateEndpointPreview();
-    setSaveStatus("已重置为厂商默认 URL");
+    setSaveStatus(t("settings.api.baseUrlResetOk"));
   }
 });
 
@@ -1420,9 +1434,9 @@ transportSelect.addEventListener("change", () => {
   }
   updateEndpointPreview();
   if (transportSelect.value === "anthropic" && !preset.anthropicBaseUrl && preset.transport !== "anthropic") {
-    transportHint.textContent = "该厂商的 Anthropic 兼容地址未内置；请按服务商文档填写 Base URL，程序只追加 /v1/messages。";
+    transportHint.textContent = t("settings.api.anthropicHintMissing");
   }
-  setSaveStatus("有未保存的更改");
+  setSaveStatus(t("settings.status.dirty"));
 });
 
 // 测试视觉模型按钮（仅在多模态开关 OFF 时可见）
@@ -1431,16 +1445,26 @@ testVisionBtn.addEventListener("click", async () => {
   const baseUrl = synced ? baseUrlInput.value : visionBaseUrlInput.value;
   const apiKey = synced ? apiKeyInput.value : visionApiKeyInput.value;
   const model = synced ? getCurrentModelValue() : visionModelInput.value;
-  if (!baseUrl) { visionTestStatus.textContent = "请先填写 API URL"; return; }
-  if (!model) { visionTestStatus.textContent = "请先填写视觉型号"; return; }
-  visionTestStatus.textContent = "测试中…";
+  if (!baseUrl) { visionTestStatus.textContent = t("settings.vision.needUrl"); return; }
+  if (!model) { visionTestStatus.textContent = t("settings.vision.needModel"); return; }
+  visionTestStatus.textContent = t("settings.vision.testing");
   testVisionBtn.disabled = true;
   try {
     const result = await window.settings!.testVision?.({ baseUrl, apiKey, model });
-    if (result?.ok) visionTestStatus.textContent = "✅ 连接成功 " + result.latency + "ms · " + (result.sample ?? "");
-    else visionTestStatus.textContent = "❌ " + (result?.error ?? "未知错误");
+    if (result?.ok) {
+      visionTestStatus.textContent = t("settings.vision.testOk", {
+        latency: result.latency,
+        sample: result.sample ?? "",
+      });
+    } else {
+      visionTestStatus.textContent = t("settings.vision.testFailed", {
+        error: result?.error ?? t("settings.api.unknownError"),
+      });
+    }
   } catch (e) {
-    visionTestStatus.textContent = "❌ " + (e instanceof Error ? e.message : String(e));
+    visionTestStatus.textContent = t("settings.vision.testFailed", {
+      error: e instanceof Error ? e.message : String(e),
+    });
   } finally {
     testVisionBtn.disabled = false;
   }
@@ -1451,12 +1475,12 @@ testVisionBtn.addEventListener("click", async () => {
 
 apiRuntimeForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  setRuntimeSaveStatus("保存中…");
+  setRuntimeSaveStatus(t("settings.status.saving"));
   try {
     if (!await saveTimeoutSettings(false)) return;
-    setRuntimeSaveStatus("已保存", "is-ok");
+    setRuntimeSaveStatus(t("settings.status.saved"), "is-ok");
   } catch {
-    setRuntimeSaveStatus("保存失败", "is-error");
+    setRuntimeSaveStatus(t("settings.status.saveFailed"), "is-error");
   }
 });
 
@@ -1466,7 +1490,7 @@ appearanceForm.addEventListener("submit", (e) => {
 
 generalForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  setGeneralSaveStatus("保存中…");
+  setGeneralSaveStatus(t("settings.status.saving"));
   try {
     await window.settings!.saveGeneral({
       disableGpuElectron: disableGpuInput.checked,
@@ -1476,15 +1500,15 @@ generalForm.addEventListener("submit", async (e) => {
       launchAtLogin: launchAtLoginInput.checked,
       language: "zh-CN",
     });
-    setGeneralSaveStatus("已保存", "is-ok");
+    setGeneralSaveStatus(t("settings.status.saved"), "is-ok");
   } catch {
-    setGeneralSaveStatus("保存失败", "is-error");
+    setGeneralSaveStatus(t("settings.status.saveFailed"), "is-error");
   }
 });
 
 cyrenePanel.addEventListener("submit", async (e) => {
   e.preventDefault();
-  setCyreneSaveStatus("保存中…");
+  setCyreneSaveStatus(t("settings.status.saving"));
   try {
     const rawDim = embeddingDimensionsInput?.value?.trim();
     const parsedNum = rawDim ? Number(rawDim) : NaN;
@@ -1498,9 +1522,9 @@ cyrenePanel.addEventListener("submit", async (e) => {
       stickerSimilarityThreshold: parseFloat(stickerThresholdInput.value),
       embeddingDimensions: parsedDim && parsedDim > 0 ? parsedDim : undefined,
     });
-    setCyreneSaveStatus("已保存", "is-ok");
+    setCyreneSaveStatus(t("settings.status.saved"), "is-ok");
   } catch {
-    setCyreneSaveStatus("保存失败", "is-error");
+    setCyreneSaveStatus(t("settings.status.saveFailed"), "is-error");
   }
 });
 
@@ -1511,7 +1535,7 @@ apiForm.addEventListener("submit", async (e) => {
     setSaveStatus(customValidationError, "is-error");
     return;
   }
-  setSaveStatus("保存中…");
+  setSaveStatus(t("settings.status.saving"));
   try {
     if (!await saveTimeoutSettings(true)) {
       return;
@@ -1532,7 +1556,7 @@ apiForm.addEventListener("submit", async (e) => {
       multimodal: multimodalToggle.checked,
     };
     const result = await window.settings!.saveModelProfile?.(profile);
-    if (!result) throw new Error("模型列表不可用");
+    if (!result) throw new Error(t("settings.profile.listUnavailable"));
     // 全局选项（视觉模型/思考开关/maxToken）不随档案走，单独保存
     await window.settings!.saveConfig({
       vision: {
@@ -1544,9 +1568,9 @@ apiForm.addEventListener("submit", async (e) => {
       disableMaxToken: toggleDisableMaxToken.checked,
     });
     if (isEditing) {
-      setSaveStatus("档案已更新", "is-ok");
+      setSaveStatus(t("settings.profile.savedUpdated"), "is-ok");
     } else if (result.added) {
-      setSaveStatus("已加入模型列表", "is-ok");
+      setSaveStatus(t("settings.profile.savedAdded"), "is-ok");
       // 新建成功后切到编辑态，用户可直接再改再存
       const saved = (result.profiles as SavedProfileLite[]).at(-1);
       if (saved && saved.id) {
@@ -1555,11 +1579,11 @@ apiForm.addEventListener("submit", async (e) => {
         applyEditingStateUI();
       }
     } else {
-      setSaveStatus("相同 Key、模型名与 URL 的档案已存在", "is-error");
+      setSaveStatus(t("settings.profile.duplicate"), "is-error");
     }
     await reloadProfiles();
   } catch {
-    setSaveStatus("保存失败", "is-error");
+    setSaveStatus(t("settings.status.saveFailed"), "is-error");
   }
 });
 
@@ -1649,7 +1673,7 @@ function switchSection(section: string): void {
   ) {
 	    placeholderIcon.innerHTML = label.emoji;
     placeholderTitle.textContent = label.title;
-    placeholderCopy.textContent = "这个模块先占位，等核心聊天与 API 接通后再继续扩展。";
+    placeholderCopy.textContent = t("settings.placeholder.copy");
   }
 
   document.querySelectorAll(".nav-item").forEach((el) => {
@@ -1771,14 +1795,14 @@ memoryImportedList?.addEventListener("click", async (event) => {
   if (!deleteBtn) return;
 
   const importId = deleteBtn.dataset.importId || "";
-  const fileName = deleteBtn.dataset.fileName || "未命名文档";
+  const fileName = deleteBtn.dataset.fileName || t("settings.importDoc.unnamed");
 
   const confirmed = await showModal({
-    title: "删除导入知识",
-    message: "确定删除导入知识？\n\n文件：\n《" + fileName + "》\n\n删除后不可恢复，如需使用请重新导入。",
+    title: t("settings.importDoc.deleteTitle"),
+    message: t("settings.importDoc.deleteMessage", { fileName }),
     icon: "⚠️",
-    confirmText: "删除",
-    cancelText: "取消",
+    confirmText: t("settings.importDoc.deleteConfirm"),
+    cancelText: t("settings.modal.customStyle.cancel"),
   });
 
   if (!confirmed) return;
@@ -1821,7 +1845,7 @@ musicReturnBtn?.addEventListener("click", () => {
 
 // ── 清空聊天历史 ─────────────────────────────────────────────
 clearChatHistoryBtn.addEventListener("click", async () => {
-  if (!window.confirm("清空所有聊天会话？\n此操作会删除全部历史对话，无法恢复。")) return;
+  if (!window.confirm(t("settings.chatHistory.clearConfirm"))) return;
   const chatStore = (window as typeof window & { chatStore?: ChatStoreApi }).chatStore;
   try {
     const sessions = await chatStore?.list();
@@ -1831,10 +1855,10 @@ clearChatHistoryBtn.addEventListener("click", async () => {
         await chatStore?.delete(s.id);
       }
     }
-    setGeneralSaveStatus("所有聊天会话已清空", "is-ok");
+    setGeneralSaveStatus(t("settings.chatHistory.clearOk"), "is-ok");
   } catch (err) {
     console.warn("[settings] 清空聊天会话失败:", err);
-    setGeneralSaveStatus("清空失败，请查看终端日志", "is-error");
+    setGeneralSaveStatus(t("settings.chatHistory.clearFailed"), "is-error");
   }
 });
 
@@ -1849,7 +1873,7 @@ presetCards?.addEventListener("click", (e) => {
     ? getCustomEndpointProvider(apiState.customEndpointMode)
     : cardProviderName;
   startNewDraft(providerName);
-  setSaveStatus("已应用预设，填写 API Key 后保存档案");
+  setSaveStatus(t("settings.preset.appliedDraftHint"));
 });
 
 // ── 自定义端点云端/本地模式切换（切换 = 换草稿厂商） ───────────
@@ -1862,8 +1886,8 @@ customEndpointControls?.addEventListener("click", (e) => {
   const providerName = getCustomEndpointProvider(nextMode);
   startNewDraft(providerName);
   setSaveStatus(nextMode === "local"
-    ? "请填写本地服务地址和模型 ID"
-    : "请填写云端服务地址、API Key 和模型 ID");
+    ? t("settings.customEndpoint.localDraftHint")
+    : t("settings.customEndpoint.cloudDraftHint"));
 });
 
 // ── 档案列表：点击档案载入编辑 ────────────────────────────────
@@ -1880,39 +1904,39 @@ profileList?.addEventListener("click", (e) => {
 deleteProfileBtn?.addEventListener("click", async () => {
   if (!apiState.editingProfileId) return;
   const profile = apiState.profiles.find((p) => p.id === apiState.editingProfileId);
-  const name = profile?.displayName || profile?.model || "该档案";
+  const name = profile?.displayName || profile?.model || t("settings.profile.fallbackName");
   try {
     await window.settings?.deleteModelProfile?.(apiState.editingProfileId);
-    setSaveStatus(`已删除「${name}」`, "is-ok");
+    setSaveStatus(t("settings.profile.deleted", { name }), "is-ok");
     await reloadProfiles();
     // 删除后切到剩余的默认档案；没有档案则回到草稿态
     const next = apiState.profiles.find((p) => p.id === apiState.defaultProfileId) ?? apiState.profiles[0];
     if (next) {
       editProfile(next, multimodalToggle.checked);
     } else {
-      startNewDraft(apiState.activeProvider || "MiniMax（稀宇科技）");
+      startNewDraft(apiState.activeProvider || t("settings.default.provider"));
     }
   } catch {
-    setSaveStatus("删除失败", "is-error");
+    setSaveStatus(t("settings.profile.deleteFailed"), "is-error");
   }
 });
 
 // ── 偏好设置：聊天社交上下文 / 自定义风格 / 表单提交 ─────────
 chatSocialContextEnabledInput.addEventListener("change", () => {
-  setPreferencesSaveStatus("有未保存的更改");
+  setPreferencesSaveStatus(t("settings.status.dirty"));
 });
 momentsEnabledInput.addEventListener("change", () => {
   renderMomentsSubRowsVisibility();
-  setPreferencesSaveStatus("有未保存的更改");
+  setPreferencesSaveStatus(t("settings.status.dirty"));
 });
 cyreneMomentsPostingEnabledInput.addEventListener("change", () => {
-  setPreferencesSaveStatus("有未保存的更改");
+  setPreferencesSaveStatus(t("settings.status.dirty"));
 });
 cyreneMomentsReactionsEnabledInput.addEventListener("change", () => {
-  setPreferencesSaveStatus("有未保存的更改");
+  setPreferencesSaveStatus(t("settings.status.dirty"));
 });
 momentsCharacterReactionsEnabledInput.addEventListener("change", () => {
-  setPreferencesSaveStatus("有未保存的更改");
+  setPreferencesSaveStatus(t("settings.status.dirty"));
 });
 
 customStyleSamplingBtn?.addEventListener("click", () => {
@@ -1923,18 +1947,18 @@ customStylePromptBtn?.addEventListener("click", async () => {
   try {
     const result = await window.settings?.openCustomStylePrompt?.();
     if (!result?.ok) {
-      setPreferencesSaveStatus("打开 Prompt 文件失败", "is-error");
+      setPreferencesSaveStatus(t("settings.prompt.openFailed"), "is-error");
       return;
     }
-    setPreferencesSaveStatus("已打开 Prompt 文件位置", "is-ok");
+    setPreferencesSaveStatus(t("settings.prompt.opened"), "is-ok");
   } catch {
-    setPreferencesSaveStatus("打开 Prompt 文件失败", "is-error");
+    setPreferencesSaveStatus(t("settings.prompt.openFailed"), "is-error");
   }
 });
 
 preferencesForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  setPreferencesSaveStatus("保存中…");
+  setPreferencesSaveStatus(t("settings.status.saving"));
   try {
     await window.settings!.saveGeneral({
       citaEnabled: citaEnabledInput.checked,
@@ -1952,8 +1976,8 @@ preferencesForm.addEventListener("submit", async (e) => {
       proactiveDeliveryTarget: getProactiveDeliveryValue(),
       screenshotHotkey: screenshotHotkeyInput?.value || "Alt+Shift+S",
     });
-    setPreferencesSaveStatus("已保存", "is-ok");
+    setPreferencesSaveStatus(t("settings.status.saved"), "is-ok");
   } catch {
-    setPreferencesSaveStatus("保存失败", "is-error");
+    setPreferencesSaveStatus(t("settings.status.saveFailed"), "is-error");
   }
 });

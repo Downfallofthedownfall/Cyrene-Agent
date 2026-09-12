@@ -60,7 +60,7 @@ describe("custom endpoint API settings UI", () => {
     expect(presetsSource).toContain('anthropicBaseUrl: "https://api.deepseek.com/anthropic"');
     expect(presetsSource).toContain('anthropicBaseUrl: "https://open.bigmodel.cn/api/anthropic"');
     expect(presetsSource).toContain('anthropicBaseUrl: "https://api.xiaomimimo.com/anthropic"');
-    expect(source).toContain("该厂商的 Anthropic 兼容地址未内置");
+    expect(source).toContain('t("settings.api.anthropicHintMissing")');
   });
 
   it("top-aligns fields with different amounts of helper text", () => {
