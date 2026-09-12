@@ -11,14 +11,13 @@ import type {
 } from "../shared/plugin-management";
 import type { PluginImportResult } from "../plugins/manager";
 
-/** 官方插件市场索引源：主源直连 GitHub，兜底走 jsDelivr CDN（两者内容一致，缓存约 12 小时） */
+/** 官方插件市场索引源：Gitee 镜像直连（GitHub 账号申诉期间作为唯一分发源） */
 export const MARKET_REGISTRY_URLS = [
-  "https://raw.githubusercontent.com/Playa-0v0/Cyrene-Plugins/main/registry.json",
-  "https://cdn.jsdelivr.net/gh/Playa-0v0/Cyrene-Plugins@main/registry.json",
+  "https://gitee.com/playa0/cyrene-plugins/raw/main/registry.json",
 ] as const;
 
-/** 插件包只允许来自官方仓库的 Release 附件地址，防止索引被篡改后下载任意来源的包 */
-export const MARKET_ZIP_URL_PREFIX = "https://github.com/Playa-0v0/Cyrene-Plugins/releases/download/";
+/** 插件包只允许来自官方仓库 zips/ 目录的直链，防止索引被篡改后下载任意来源的包 */
+export const MARKET_ZIP_URL_PREFIX = "https://gitee.com/playa0/cyrene-plugins/raw/main/zips/";
 
 export const MARKET_REGISTRY_TIMEOUT_MS = 10_000;
 export const MARKET_ZIP_DOWNLOAD_TIMEOUT_MS = 120_000;

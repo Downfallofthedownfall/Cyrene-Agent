@@ -16,8 +16,8 @@ interface PluginModePanelProps {
   api?: PluginManagementApi;
 }
 
-// Cyrene 官方插件收录仓库（GitHub），面板内展示并可在系统浏览器打开
-const PLUGIN_REGISTRY_URL = "https://github.com/Playa-0v0/Cyrene-Plugins";
+// Cyrene 官方插件收录仓库（Gitee 镜像，GitHub 账号申诉期间作为分发源），面板内展示并可在系统浏览器打开
+const PLUGIN_REGISTRY_URL = "https://gitee.com/playa0/cyrene-plugins";
 
 type HeaderAction = "refresh" | "import" | null;
 type PanelView = "installed" | "market";
