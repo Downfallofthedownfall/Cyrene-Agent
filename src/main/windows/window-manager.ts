@@ -172,14 +172,23 @@ export function createWindowManager(options: WindowManagerOptions): WindowManage
     createMusicPlayerWindow,
 
     showPetWindow(): void {
-      getUsablePetWindow()?.show();
+      const win = getUsablePetWindow();
+      if (win) {
+        win.show();
+        return;
+      }
+      // 窗口不存在（如被意外销毁）时兜底重建，保证托盘/设置永远能救回桌宠
+      this.createPetWindow(true);
     },
     hidePetWindow(): void {
       getUsablePetWindow()?.hide();
     },
     togglePetWindow(): void {
       const win = getUsablePetWindow();
-      if (!win) return;
+      if (!win) {
+        this.createPetWindow(true);
+        return;
+      }
       win.isVisible() ? win.hide() : win.show();
     },
     minimizePetWindow(): void {

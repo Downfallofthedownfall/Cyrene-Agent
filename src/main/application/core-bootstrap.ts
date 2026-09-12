@@ -173,22 +173,22 @@ export async function startCore(deps: CoreDependencies): Promise<CoreResult> {
   // 全部处理器就绪后才加载聊天页面；页面加载失败属于致命错误（向上抛出）
   await timedStep("chat-load", () => shell.chat.load());
 
-  // 桌宠：仅在设置开启时创建（不创建后隐藏、不闪现）；辅助窗口按设置创建
+  // 桌宠：窗口始终创建，petVisible 只决定是否显示（隐藏时不闪现）。
+  // 始终创建是为了保证托盘"显示/隐藏桌宠"与设置面板开关随时能把窗口救回来，
+  // 且 alwaysOnTop / zoom / live2d 生命周期在隐藏状态下同样完成接线。
   const generalSettings = deps.loadGeneralSettings();
-  // 启动期一次性应用通用设置（登录项同步等）；此时桌宠未创建，show/hide 为 no-op
+  // 启动期一次性完整应用通用设置（登录项同步等）；此时桌宠未创建，show/hide 为 no-op
   deps.applyGeneralSettings(generalSettings, services);
-  if (generalSettings.petVisible) {
-    // showOnReady=true：页面就绪才显示，避免空窗口闪现；创建本身在核心 IPC 注册之后
-    shell.windowManager.createPetWindow(true);
-    shell.windowManager.onPetWindowReady((win) => {
-      shell.live2dWindowLifecycle.attach(win);
-    });
-    shell.windowManager.onPetWindowClosed(() => {
-      shell.live2dWindowLifecycle.clear();
-    });
-    shell.windowManager.setPetWindowAlwaysOnTop(generalSettings.petAlwaysOnTop);
-    shell.windowManager.applyPetWindowZoom(generalSettings.petZoom);
-  }
+  // showOnReady=petVisible：页面就绪才显示，避免空窗口闪现；创建本身在核心 IPC 注册之后
+  shell.windowManager.createPetWindow(generalSettings.petVisible);
+  shell.windowManager.onPetWindowReady((win) => {
+    shell.live2dWindowLifecycle.attach(win);
+  });
+  shell.windowManager.onPetWindowClosed(() => {
+    shell.live2dWindowLifecycle.clear();
+  });
+  shell.windowManager.setPetWindowAlwaysOnTop(generalSettings.petAlwaysOnTop);
+  shell.windowManager.applyPetWindowZoom(generalSettings.petZoom);
   if (generalSettings.sidebarVisible) shell.windowManager.createSidebarWindow();
   if (generalSettings.tasksVisible) shell.windowManager.createTasksWindow();
 
