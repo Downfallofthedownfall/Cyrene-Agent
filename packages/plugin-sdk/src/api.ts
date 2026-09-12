@@ -32,6 +32,12 @@ export const PLUGIN_CAPABILITIES: readonly PluginCapability[] = [
   "speech-input",
 ];
 
+/**
+ * 插件设置面板的挂载分区。每开放一个枚举值，设置页必须有对应的
+ * 挂载容器，所以首版故意只收窄到渠道和插件两个分区。
+ */
+export type PluginSettingsSection = "channels" | "plugins";
+
 export interface PluginManifest {
   /** Plugin API major version required by this plugin. */
   apiVersion: number;
@@ -46,6 +52,10 @@ export interface PluginManifest {
   entry: string;
   /** Optional bare icon file name inside the plugin directory (png/jpg/webp/svg). */
   icon?: string;
+  /** 插件目录内的设置面板 HTML 裸文件名；声明后宿主在设置页挂载该面板。 */
+  settingsPanel?: string;
+  /** 面板挂载的设置分区；缺省挂到「插件」分区。 */
+  settingsSection?: PluginSettingsSection;
   /** Honored only for bundled plugins. User plugins always require opt-in. */
   defaultEnabled: boolean;
   /** Host services requested from Cyrene. This is not a security sandbox. */
@@ -67,6 +77,8 @@ export interface PluginManifestInput {
   author: string;
   entry: string;
   icon?: string;
+  settingsPanel?: string;
+  settingsSection?: PluginSettingsSection;
   defaultEnabled?: boolean;
   deps?: PluginCapability[];
 }

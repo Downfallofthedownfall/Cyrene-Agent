@@ -14,11 +14,14 @@ import type {
 } from "./types";
 
 const MANIFEST_FILE = "manifest.json";
-const ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+/** 插件 id 语法：小写字母数字 + 连字符分段；必须保持 host-safe（充当 cyrene-plugin:// 的 origin host）。 */
+export const PLUGIN_ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const ID_RE = PLUGIN_ID_RE;
 const SEMVER_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 const ENTRY_EXTENSIONS = new Set([".cjs", ".js", ".mjs"]);
 const ICON_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".svg"]);
 const ICON_MAX_BYTES = 2 * 1024 * 1024;
+const PANEL_MAX_BYTES = 1024 * 1024;
 let esmImportGeneration = 0;
 const importEsmModule = require("./native-import.cjs") as (
   specifier: string,
@@ -69,6 +72,34 @@ function resolveIcon(dir: string, icon: unknown): string | undefined {
   return icon;
 }
 
+/**
+ * 设置面板是纯可选装饰字段：声明了但不合法（非裸文件名 / 非 .html /
+ * 文件缺失 / 链接指向目录外 / 超过 1MiB）时静默忽略，不让整个插件加载失败。
+ */
+function resolveSettingsPanel(dir: string, panel: unknown): string | undefined {
+  if (panel === undefined || panel === null || panel === "") return undefined;
+  if (typeof panel !== "string") return undefined;
+  if (path.basename(panel) !== panel) return undefined;
+  if (path.extname(panel).toLowerCase() !== ".html") return undefined;
+  const panelPath = path.join(dir, panel);
+  let stat: ReturnType<typeof statSync>;
+  try {
+    stat = statSync(panelPath);
+  } catch {
+    return undefined;
+  }
+  if (!stat.isFile() || stat.size > PANEL_MAX_BYTES) return undefined;
+  try {
+    const realDir = realpathSync(dir);
+    const realPanel = realpathSync(panelPath);
+    const relative = path.relative(realDir, realPanel);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) return undefined;
+  } catch {
+    return undefined;
+  }
+  return panel;
+}
+
 export function inspectPluginDir(dir: string): ManifestInspection {
   const manifestPath = path.join(dir, MANIFEST_FILE);
   if (!existsSync(manifestPath)) return { manifest: null, error: "缺少 manifest.json" };
@@ -116,6 +147,9 @@ export function inspectPluginDir(dir: string): ManifestInspection {
       return { manifest: null, error: "entry 不能通过链接指向插件目录外" };
     }
 
+    // 面板不合法时分区声明随之失效，一并丢弃；分区枚举合法性已由 Schema 保证。
+    const settingsPanel = resolveSettingsPanel(dir, input.settingsPanel);
+
     const manifest: PluginManifest = {
       apiVersion: CURRENT_PLUGIN_API_VERSION,
       id: input.id,
@@ -125,6 +159,8 @@ export function inspectPluginDir(dir: string): ManifestInspection {
       author: input.author.trim(),
       entry: input.entry,
       icon: resolveIcon(dir, input.icon),
+      settingsPanel,
+      settingsSection: settingsPanel ? input.settingsSection : undefined,
       defaultEnabled: input.defaultEnabled !== false,
       deps,
     };

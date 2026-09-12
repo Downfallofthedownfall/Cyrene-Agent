@@ -26,6 +26,10 @@ export interface PluginListEntry {
   canOpen: boolean;
   /** Icon as a data URL when the plugin provides a valid image file. */
   icon?: string;
+  /** 设置面板 HTML 裸文件名；仅已启用且校验通过时透出（渲染端据此挂载 iframe） */
+  settingsPanel?: string;
+  /** 面板挂载的设置分区；缺省挂「插件」分区 */
+  settingsSection?: "channels" | "plugins";
 }
 
 export interface PluginScanIssue {
@@ -76,4 +80,12 @@ export interface PluginManagementApi {
   uninstall(id: string): Promise<{ ok: boolean; error?: string; overview?: PluginOverview }>;
   marketList(): Promise<MarketListResult>;
   marketInstall(id: string): Promise<MarketInstallResult>;
+}
+
+/**
+ * 设置面板桥的渲染端转发 API：pluginId 由设置页宿主脚本按 iframe 归属
+ * 填入，不来自面板消息（主进程还会做 sender 窗口校验）。
+ */
+export interface PluginPanelApi {
+  invoke(pluginId: string, channel: string, args: unknown[]): Promise<unknown>;
 }

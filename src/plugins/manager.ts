@@ -143,6 +143,9 @@ export class PluginManager {
           hasUnregister: typeof plugin?.unregister === "function",
           canOpen: typeof plugin?.open === "function",
           icon: readIconDataUrl(record),
+          // 面板字段仅对已启用插件透出（渲染端不挂载禁用插件的面板）
+          settingsPanel: this.isConfiguredEnabled(record) ? record.manifest.settingsPanel : undefined,
+          settingsSection: this.isConfiguredEnabled(record) ? record.manifest.settingsSection : undefined,
         };
       })
       .sort((a, b) => {
@@ -153,6 +156,17 @@ export class PluginManager {
 
   overview(): PluginOverview {
     return { plugins: this.list(), issues: [...this.scanIssues] };
+  }
+
+  /**
+   * 设置面板协议的访问查询：仅「已启用且声明了合法 settingsPanel」的插件
+   * 返回其目录，禁用或未声明面板的插件返回 undefined（协议层对应 404）。
+   */
+  getSettingsPanelDir(pluginId: string): string | undefined {
+    const record = this.records.get(pluginId);
+    if (!record?.manifest.settingsPanel) return undefined;
+    if (!this.isConfiguredEnabled(record)) return undefined;
+    return record.dir;
   }
 
   /**

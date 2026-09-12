@@ -47,9 +47,17 @@ describe("Schema 与 Loader 一致性", () => {
     ["字段类型错误", { ...validInput, defaultEnabled: "yes" }],
     ["未知顶层字段", { ...validInput, experimental: true }],
     ["非对象 manifest", "not-an-object"],
+    ["settingsSection 枚举外分区", { ...validInput, settingsPanel: "ui.html", settingsSection: "themes" }],
   ])("%s：Schema 拒绝且 Loader 拒绝", (_name, data) => {
     expect(validateManifestData(data).ok).toBe(false);
     expect(inspectWithData(data).manifest).toBeNull();
+  });
+
+  it("settingsPanel 与两个合法分区均通过 Schema 枚举", () => {
+    for (const section of ["channels", "plugins", undefined]) {
+      const data = { ...validInput, settingsPanel: "ui.html", settingsSection: section };
+      expect(validateManifestData(data).ok).toBe(true);
+    }
   });
 
   it("五项新能力均通过 Schema 枚举并可用于 deps", () => {

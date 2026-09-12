@@ -632,6 +632,40 @@ describe("PluginManager", () => {
     expect(mgr.overview().plugins).toEqual([]);
     expect(mgr.overview().issues[0]?.message).toMatch(/无法扫描插件目录/);
   });
+
+  it("getSettingsPanelDir：仅已启用且声明合法面板的插件返回目录", async () => {
+    const h = harness(); // 先初始化 tmp 再建 fixture
+    const panelPluginDir = path.join(tmp, "panel-plugin");
+    mkdirSync(panelPluginDir, { recursive: true });
+    writeFileSync(
+      path.join(panelPluginDir, "manifest.json"),
+      JSON.stringify({
+        apiVersion: 1,
+        id: "panel-plugin",
+        name: "面板插件",
+        version: "1.0.0",
+        description: "d",
+        author: "a",
+        entry: "index.cjs",
+        settingsPanel: "ui.html",
+        defaultEnabled: true,
+      }),
+      "utf8",
+    );
+    writeFileSync(path.join(panelPluginDir, "index.cjs"), "module.exports = { register() {} };", "utf8");
+    writeFileSync(path.join(panelPluginDir, "ui.html"), "<p>panel</p>", "utf8");
+
+    // demo 未声明面板；panel-plugin 声明面板（builtin + defaultEnabled，默认启用）
+    const mgr = new PluginManager(h.options);
+    await mgr.start();
+    expect(mgr.getSettingsPanelDir("demo")).toBeUndefined();
+    expect(mgr.getSettingsPanelDir("panel-plugin")).toBe(panelPluginDir);
+    expect(mgr.getSettingsPanelDir("nobody")).toBeUndefined();
+
+    // 用户禁用后立即失效（协议层对应 404）
+    await mgr.setEnabled("panel-plugin", false);
+    expect(mgr.getSettingsPanelDir("panel-plugin")).toBeUndefined();
+  });
 });
 
 describe("marketplace origin bookkeeping", () => {

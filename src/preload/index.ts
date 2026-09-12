@@ -8,6 +8,7 @@ import type {
 } from "../shared/ipc-channels";
 import type { UiTheme } from "../shared/ui-theme";
 import type { UiFont } from "../shared/ui-font";
+import type { PluginPanelApi } from "../shared/plugin-management";
 import type { ReasoningPreference } from "../shared/reasoning";
 import type { DocumentIndexProgress } from "../main/rag/document-index-queue";
 import type { AguiRunAck } from "../shared/run-terminal";
@@ -538,6 +539,15 @@ const pluginsApi = {
 };
 
 contextBridge.exposeInMainWorld("plugins", pluginsApi);
+
+// 设置面板桥的统一转发通道：只暴露单一 invoke，pluginId 由设置页宿主
+// 按 iframe 归属填入；主进程侧还会校验 sender 窗口身份
+const pluginPanelApi: PluginPanelApi = {
+  invoke: (pluginId, channel, args) =>
+    ipcRenderer.invoke(IPC.PLUGINS_PANEL_INVOKE, pluginId, channel, args),
+};
+
+contextBridge.exposeInMainWorld("pluginPanel", pluginPanelApi);
 
 const schedulerApi = {
   list: () => ipcRenderer.invoke(IPC.SCHEDULER_LIST),

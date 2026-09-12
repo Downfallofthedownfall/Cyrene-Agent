@@ -2,7 +2,7 @@
 
 import type { ReviewSnapshot, ReviewRestoreOutcome } from "../shared/review-types";
 import type { AppUpdateApi } from "../shared/app-update";
-import type { PluginManagementApi } from "../shared/plugin-management";
+import type { PluginManagementApi, PluginPanelApi } from "../shared/plugin-management";
 import type { MomentsApi } from "../shared/moments-types";
 
 interface SystemApi {
@@ -21,6 +21,7 @@ declare global {
     review?: ReviewApi;
     appUpdate?: AppUpdateApi;
     plugins?: PluginManagementApi;
+    pluginPanel?: PluginPanelApi;
     moments?: MomentsApi;
     toast?: ToastRendererApi;
   }

@@ -434,6 +434,9 @@ export function createDefaultApplicationDependencies(): ApplicationDependencies 
           agentRuntime: runtime,
           // 插件启停后让调度引擎重新归一化逾期任务并重排计时器（不补跑）。
           onPluginRunningStateChange: () => scheduler.engine.refreshPluginTasks(),
+          // 面板宿主窗口（首版=设置窗口）：settingsWindow 为 CJS live-binding，
+          // 必须在请求时刻读取
+          getPanelHostWebContents: () => settingsWindow?.webContents ?? null,
         });
         return pluginManager;
       },

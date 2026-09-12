@@ -14,6 +14,8 @@ import { activeChatTargetRegistry } from "./plugin-host/active-chat-target";
 import { createSpeechInputService } from "./plugin-host/speech-input-service";
 import { createSpeechInputCommitBridge } from "./plugin-host/speech-input-commit-bridge";
 import { createSpeechInputCallController } from "./plugin-host/speech-input-call-controller";
+import { installPluginPanelProtocol } from "./plugin-panel-protocol";
+import { createPluginIpcRouter } from "../plugins/ipc-router";
 import { PluginManager } from "../plugins/manager";
 import { pluginPromptRegistry } from "../plugins/prompts";
 import {
@@ -41,11 +43,18 @@ export interface PluginRuntimeDeps {
   schedulerStore: PluginRuntimeSchedulerStore;
   /** 插件启停后回调：宿主让调度引擎重排计时器（不补跑）。 */
   onPluginRunningStateChange?: (pluginId: string, running: boolean) => void;
+  /**
+   * 面板宿主窗口查询（首版=设置窗口）：主进程对 PLUGINS_PANEL_INVOKE 做
+   * sender 校验的依据；未提供时面板转发一律拒绝（fail-closed）。
+   */
+  getPanelHostWebContents?: () => Electron.WebContents | null;
 }
 
 export async function startPluginRuntime(deps: PluginRuntimeDeps): Promise<PluginManager> {
   const userPluginRoot = path.join(app.getPath("userData"), "plugins");
   const pluginDataRoot = path.join(app.getPath("userData"), "plugin-data");
+  // 插件 IPC 路由器：面板转发与既有 ipcMain 直达共用一套执行路径
+  const router = createPluginIpcRouter();
   // 独占语音输入租约：全局单例，随插件运行时启动创建；
   // 普通聊天经 IPC 提交桥送入聊天窗口渲染页，活动通话经控制器落到通话管理器
   const speechInput = createSpeechInputService({
@@ -69,9 +78,14 @@ export async function startPluginRuntime(deps: PluginRuntimeDeps): Promise<Plugi
         startOne: (id) => channelManager.startOne(id as ChannelId),
       },
       registerIpc: (channel, handler) => {
-        deps.ipc.handle(channel, (_event, ...args: unknown[]) => handler(...args));
+        // 两条调用来源（既有 ipcMain 直达 + 面板转发）共用同一张路由表
+        router.register(channel, handler);
+        deps.ipc.handle(channel, (_event, ...args: unknown[]) => router.invokeRegistered(channel, args));
       },
-      unregisterIpc: (channel) => deps.ipc.removeHandler(channel),
+      unregisterIpc: (channel) => {
+        router.unregister(channel);
+        deps.ipc.removeHandler(channel);
+      },
       promptRegistry: pluginPromptRegistry,
       // 宿主服务统一从工厂注入：channels、llm、secrets、workspace、
       // conversations 和 scheduler 在 plugin-host/host-services.ts 装配；
@@ -145,6 +159,23 @@ export async function startPluginRuntime(deps: PluginRuntimeDeps): Promise<Plugi
   if (deps.onPluginRunningStateChange) {
     manager.onRunningStateChange(deps.onPluginRunningStateChange);
   }
+  // 设置面板统一转发通道：主进程强制 sender 必须是面板宿主窗口（首版=设置
+  // 窗口）；pluginId 语法与通道归属由路由器校验，面板无法构造跨插件通道
+  deps.ipc.handle(
+    IPC.PLUGINS_PANEL_INVOKE,
+    (event: Electron.IpcMainInvokeEvent, pluginId: unknown, channel: unknown, args: unknown) => {
+      if (typeof pluginId !== "string" || typeof channel !== "string" || !Array.isArray(args)) {
+        return { ok: false, error: "面板调用参数格式非法" };
+      }
+      const host = deps.getPanelHostWebContents?.() ?? null;
+      if (!host || event.sender !== host) {
+        return { ok: false, error: "面板调用来源窗口不受信任" };
+      }
+      return router.dispatch({ pluginId, channel, args, caller: "panel" });
+    },
+  );
+  // 设置面板静态资源协议：禁用插件立即 404，查询实时反映启停状态
+  installPluginPanelProtocol((pluginId) => manager.getSettingsPanelDir(pluginId));
   await manager.start();
   return manager;
 }

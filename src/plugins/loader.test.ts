@@ -153,6 +153,78 @@ describe("readManifest", () => {
     expect(manifest).not.toBeNull();
     expect(manifest?.icon).toBeUndefined();
   });
+
+  it("settingsPanel 字段：合法时保留并带出分区，非法或缺失时静默忽略", () => {
+    const ok = fixture("panel-ok", {
+      "manifest.json": JSON.stringify({
+        ...validManifest,
+        settingsPanel: "ui.html",
+        settingsSection: "channels",
+      }),
+      "index.cjs": "module.exports = {};",
+      "ui.html": "<!doctype html><html><body>panel</body></html>",
+    });
+    const okManifest = readManifest(ok);
+    expect(okManifest?.settingsPanel).toBe("ui.html");
+    expect(okManifest?.settingsSection).toBe("channels");
+
+    // 面板文件缺失：整个面板声明被忽略，分区声明一并丢弃
+    const missing = fixture("panel-missing", {
+      "manifest.json": JSON.stringify({
+        ...validManifest,
+        settingsPanel: "ui.html",
+        settingsSection: "channels",
+      }),
+      "index.cjs": "module.exports = {};",
+    });
+    expect(readManifest(missing)?.settingsPanel).toBeUndefined();
+    expect(readManifest(missing)?.settingsSection).toBeUndefined();
+
+    const badExt = fixture("panel-bad-ext", {
+      "manifest.json": JSON.stringify({ ...validManifest, settingsPanel: "ui.js" }),
+      "index.cjs": "module.exports = {};",
+      "ui.js": "x",
+    });
+    expect(readManifest(badExt)?.settingsPanel).toBeUndefined();
+
+    const traversal = fixture("panel-traversal", {
+      "manifest.json": JSON.stringify({ ...validManifest, settingsPanel: "../ui.html" }),
+      "index.cjs": "module.exports = {};",
+    });
+    const traversalManifest = readManifest(traversal);
+    expect(traversalManifest).not.toBeNull();
+    expect(traversalManifest?.settingsPanel).toBeUndefined();
+
+    const oversize = fixture("panel-oversize", {
+      "manifest.json": JSON.stringify({ ...validManifest, settingsPanel: "big.html" }),
+      "index.cjs": "module.exports = {};",
+      "big.html": "x".repeat(1024 * 1024 + 1),
+    });
+    expect(readManifest(oversize)?.settingsPanel).toBeUndefined();
+  });
+
+  it("settingsSection 枚举外的值：Schema 拒绝整个插件", () => {
+    const dir = fixture("panel-bad-section", {
+      "manifest.json": JSON.stringify({
+        ...validManifest,
+        settingsPanel: "ui.html",
+        settingsSection: "themes",
+      }),
+      "index.cjs": "module.exports = {};",
+      "ui.html": "<p>panel</p>",
+    });
+    expect(readManifest(dir)).toBeNull();
+  });
+
+  it("settingsSection 缺少面板声明时无意义，被静默丢弃", () => {
+    const dir = fixture("panel-section-only", {
+      "manifest.json": JSON.stringify({ ...validManifest, settingsSection: "channels" }),
+      "index.cjs": "module.exports = {};",
+    });
+    const manifest = readManifest(dir);
+    expect(manifest).not.toBeNull();
+    expect(manifest?.settingsSection).toBeUndefined();
+  });
 });
 
 describe("scanPluginDir", () => {

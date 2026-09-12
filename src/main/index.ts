@@ -10,6 +10,7 @@
 import { app } from "electron";
 import { createApplication } from "./application/application";
 import { createDefaultApplicationDependencies } from "./application/default-dependencies";
+import { registerPluginPanelScheme } from "./plugin-panel-protocol";
 
 // 打包版双击启动时 stdout/stderr 管道可能不存在或中途关闭，
 // 此时任何 console.log 写入都会抛异步 EPIPE 并升级成 uncaughtException 弹错误框
@@ -21,6 +22,9 @@ for (const stream of [process.stdout, process.stderr]) {
     throw err;
   });
 }
+
+// 插件设置面板协议：scheme 特权必须在 app.ready 之前注册（Electron 硬性要求）
+registerPluginPanelScheme();
 
 const application = createApplication(createDefaultApplicationDependencies());
 

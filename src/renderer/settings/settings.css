@@ -4547,3 +4547,37 @@ body {
 .music-search-row__play {
   margin: 0;
 }
+/* ===== 插件设置面板（动态挂载的 sandbox iframe 卡片） ===== */
+.plugin-panels {
+  display: grid;
+  gap: 18px;
+}
+.plugin-panel-card {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 182, 220, 0.12);
+}
+.plugin-panel-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.plugin-panel-card__header h2 {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(254, 247, 255, 0.92);
+}
+.plugin-panel-card__version {
+  font-size: 12px;
+  color: rgba(254, 247, 255, 0.5);
+}
+.plugin-panel-card__frame {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  transition: height 180ms ease;
+}
