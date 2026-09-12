@@ -7,6 +7,7 @@ import { toolRegistry } from "./orchestrator/tools/registry/tool-registry";
 import { loadGeneralSettings, saveGeneralSettings } from "./settings/settings-facade";
 import { loadModelSettings, resolveModelSettingsProfile } from "./settings/model-settings";
 import { pluginGenerateText } from "./plugin-llm";
+import { createPluginAgentRunner } from "./plugin-agent";
 import { createHostServiceFactory } from "./plugin-host/host-services";
 import type { PluginSchedulerStore } from "./plugin-host/scheduler-service";
 import { activeChatTargetRegistry } from "./plugin-host/active-chat-target";
@@ -24,6 +25,7 @@ import { IPC } from "../shared/ipc-channels";
 import type { LlmClient } from "./services/llm/llm-client";
 import { enqueueLLMTask } from "./llm-queue";
 import type { IpcScope } from "./application/ipc-scope";
+import type { AgentRuntime } from "./orchestrator/agent-runtime";
 
 /** 调度存储视图：插件服务读写任务，卸载清理时按归属批量删除插件任务。 */
 export type PluginRuntimeSchedulerStore = PluginSchedulerStore & {
@@ -33,6 +35,8 @@ export type PluginRuntimeSchedulerStore = PluginSchedulerStore & {
 export interface PluginRuntimeDeps {
   llmClient: LlmClient;
   ipc: IpcScope;
+  /** 统一人设与提示词管线；供无头插件 Agent 复用。 */
+  agentRuntime: Pick<AgentRuntime, "buildOptions">;
   /** 调度存储；必须已完成 load()（scheduler.initialize() 先于启动插件）。 */
   schedulerStore: PluginRuntimeSchedulerStore;
   /** 插件启停后回调：宿主让调度引擎重排计时器（不补跑）。 */
@@ -84,6 +88,12 @@ export async function startPluginRuntime(deps: PluginRuntimeDeps): Promise<Plugi
             options,
           ),
         },
+        createAgentRunner: ({ pluginId, signal }) => createPluginAgentRunner({
+          pluginId,
+          pluginSignal: signal,
+          userDataPath: app.getPath("userData"),
+          agentRuntime: deps.agentRuntime,
+        }),
         storage: safeStorage,
         chatsReader: chatsStore,
         schedulerStore: deps.schedulerStore,

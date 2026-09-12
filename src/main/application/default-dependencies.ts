@@ -426,11 +426,12 @@ export function createDefaultApplicationDependencies(): ApplicationDependencies 
         publishLifecycle: lifecyclePublisher,
       }),
 
-      startPlugins: async (services, scheduler) => {
+      startPlugins: async (services, scheduler, runtime) => {
         pluginManager = await startPluginRuntime({
           llmClient: services.llm,
           ipc: shell.ipc,
           schedulerStore: scheduler.store,
+          agentRuntime: runtime,
           // 插件启停后让调度引擎重新归一化逾期任务并重排计时器（不补跑）。
           onPluginRunningStateChange: () => scheduler.engine.refreshPluginTasks(),
         });

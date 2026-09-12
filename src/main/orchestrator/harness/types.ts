@@ -118,6 +118,8 @@ export const INITIAL_HARNESS_CACHE_STATE: HarnessCacheState = {
 export interface HarnessConfig {
   /** 已声明为安全的工具最多可同时执行几个；1 表示串行。 */
   maxParallelToolCalls: number;
+  /** 工具轮上限；0 表示不限。达到上限后不再发起下一次模型请求。 */
+  maxRounds: number;
   /** 总超时（毫秒） */
   totalTimeoutMs: number;
   /** 用户等待超时（毫秒，ask_user 等待期间不计入执行超时） */
@@ -139,6 +141,7 @@ export interface HarnessConfig {
 
 export const DEFAULT_HARNESS_CONFIG: HarnessConfig = {
   maxParallelToolCalls: 4,
+  maxRounds: 0,
   totalTimeoutMs: 0,
   userWaitTimeoutMs: 120_000,
   contextWindowTokens: 256_000,
@@ -297,7 +300,7 @@ export interface HarnessResult {
   /** 是否因超时退出（兼容字段；新消费方请改用 terminal.status） */
   terminated: boolean;
   /** 终止原因（兼容字段；新消费方请改用 terminal.reason） */
-  terminateReason?: "timeout" | "cancelled" | "error";
+  terminateReason?: "max_rounds" | "timeout" | "cancelled" | "error";
   /**
    * Canonical 终态结算（exactly-once，见 run-settlement.ts）。
    *

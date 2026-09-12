@@ -192,11 +192,50 @@ export interface PluginLlmGenerateOptions {
   purpose?: string;
 }
 
+/** 无头目标运行的稳定进度投影；不暴露宿主 Harness 内部事件结构。 */
+export type PluginAgentEvent =
+  | { kind: "round_started"; round: number }
+  | { kind: "tool_started"; toolName: string }
+  | { kind: "tool_finished"; toolName: string; ok: boolean };
+
+export interface PluginAgentRunOptions {
+  /** 插件在启动前生成；宿主、工具上下文与日志全链共用。 */
+  runId: string;
+  /** 任务目标，作为首条 user 消息。 */
+  goal: string;
+  /** 不注册的冻结工具集；直接复用 PluginTool 完整契约。 */
+  tools: ReadonlyArray<PluginTool>;
+  /** 可选任务诊断标签；宿主以 plugin:<id>:<purpose> 标记该次运行与工具上下文。 */
+  purpose?: string;
+  /** 插件持有的取消信号。 */
+  signal?: AbortSignal;
+  /** 稳定进度事件投影；回调不得发起工具调用。 */
+  onEvent?: (event: PluginAgentEvent) => void;
+  /** 工具轮上限；默认 50。 */
+  maxRounds?: number;
+  /** 整体硬截止毫秒；默认 15 分钟。 */
+  maxWallMs?: number;
+}
+
+export interface PluginAgentRunResult {
+  text: string;
+  terminal: {
+    status: PluginTurnStatus;
+    reason?: string;
+    externalEffectsMayContinue: boolean;
+  };
+  rounds: number;
+}
+
 export interface PluginLlmService {
   generateText(
     messages: PluginLlmMessage[],
     options?: PluginLlmGenerateOptions,
   ): Promise<string>;
+  /**
+   * 较新宿主提供的无头目标循环。老宿主没有该方法，插件应保留兼容回退。
+   */
+  runGoal?(options: PluginAgentRunOptions): Promise<PluginAgentRunResult>;
 }
 
 export interface PluginStorage {
@@ -514,7 +553,7 @@ export type PluginPromptMode = "chat" | "work" | "learn" | "code";
  * 提示词 Provider 的场景来源。新增场景默认不收录既有 Provider，
  * 插件必须显式声明 sources 才会参与，防止升级后不知情地被扩大调用。
  */
-export type PluginPromptSource = "conversation" | "scheduler" | "moments-post";
+export type PluginPromptSource = "conversation" | "scheduler" | "moments-post" | "plugin-agent";
 
 /** 各场景共有的构建输入：本轮用户文本与可选的会话归属。 */
 interface PluginPromptBuildInputCommon {
@@ -532,6 +571,12 @@ export interface ConversationPromptBuildInput extends PluginPromptBuildInputComm
 /** 定时任务轮次；mode 为任务冻结的执行模式。 */
 export interface SchedulerPromptBuildInput extends PluginPromptBuildInputCommon {
   source: "scheduler";
+  mode: PluginPromptMode;
+}
+
+/** 插件发起的无头目标循环；仅显式声明该来源的 Provider 会参与。 */
+export interface PluginAgentPromptBuildInput extends PluginPromptBuildInputCommon {
+  source: "plugin-agent";
   mode: PluginPromptMode;
 }
 
@@ -554,6 +599,7 @@ export interface MomentsPostPromptBuildInput extends PluginPromptBuildInputCommo
 export type PluginPromptBuildInput =
   | ConversationPromptBuildInput
   | SchedulerPromptBuildInput
+  | PluginAgentPromptBuildInput
   | MomentsPostPromptBuildInput;
 
 /**

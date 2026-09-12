@@ -497,6 +497,28 @@ describe("CyreneHarness completion", () => {
     expect(fetchMock).toHaveBeenCalledTimes(52);
   });
 
+  it("stops at maxRounds before issuing the next model request", async () => {
+    const { fn: fetchMock } = fakeFetchSequencer([
+      assistantResponse({ toolCalls: [mutationToolCall("call-1")] }),
+      assistantResponse({ toolCalls: [mutationToolCall("call-2")] }),
+    ]);
+    vi.stubGlobal("fetch", fetchMock);
+    mockedDispatch.mockResolvedValue(successDispatchResult());
+
+    const result = await runCyreneHarness({
+      systemPrompt: "you are a bounded test agent",
+      messages: [{ role: "user", content: "执行受轮次限制的任务" }],
+      tools: [],
+      vendorConfig,
+      config: { maxRounds: 1 },
+    });
+
+    expect(result.rounds).toBe(1);
+    expect(result.terminateReason).toBe("max_rounds");
+    expect(result.finalAnswer).toContain("工具轮次上限");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("同工具连续失败达到阈值后熔断：不再 dispatch,合成 not_executed 引导模型换方案", async () => {
     // 模型连续 6 轮调用同一 write_file 工具,dispatch 每次都失败(semantic_failure 不重试)
     const toolRounds = Array.from({ length: 6 }, (_, index) => (

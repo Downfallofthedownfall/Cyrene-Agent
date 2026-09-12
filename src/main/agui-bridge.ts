@@ -102,6 +102,10 @@ export interface AguiRunInput {
   workspaceBindingSessionId?: string | null;
   /** 外部渠道入口。桌面聊天不传；微信/飞书用于注入渠道语气规则。 */
   channel?: RelationshipChannel;
+  /** 仅主进程内部使用：插件无头 Agent 指定提示词 Provider 场景；缺省为 conversation。 */
+  promptSource?: "conversation" | "plugin-agent";
+  /** 仅主进程内部使用：传给插件提示词 Provider 的逻辑渠道，不参与内置渠道规则。 */
+  promptChannel?: string;
   /** @deprecated 仅保留 Renderer 兼容；主进程按 ChatSession.mode 分流并忽略该值。 */
   executionMode?: ConversationMode | "soul-only" | "collaboration";
   /** 主进程内部使用：由 ChatSession.mode 注入，用于选择对应模式的 system prompt。 */

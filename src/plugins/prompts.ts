@@ -88,7 +88,7 @@ export function createPluginPromptRegistry(): PluginPromptRegistry {
       if (provider.sources !== undefined && (
         !Array.isArray(provider.sources)
         || provider.sources.length === 0
-        || provider.sources.some((source) => !["conversation", "scheduler", "moments-post"].includes(source))
+        || provider.sources.some((source) => !["conversation", "scheduler", "moments-post", "plugin-agent"].includes(source))
       )) {
         throw new Error(`插件提示词 Provider sources 非法: ${JSON.stringify(provider.sources)}`);
       }

@@ -149,6 +149,19 @@ describe("startCore", () => {
     expect(calls).toContain("plugins-start");
   });
 
+  it("passes the constructed Agent Runtime to plugin startup", async () => {
+    const runtime = { buildOptions: vi.fn() } as never;
+    const startPlugins = vi.fn(async () => ({ stop: vi.fn(async () => undefined) } as never));
+    const deps = makeCoreDeps([], {
+      createRuntime: () => runtime,
+      startPlugins,
+    });
+
+    await startCore(deps);
+
+    expect(startPlugins).toHaveBeenCalledWith(expect.anything(), expect.anything(), runtime);
+  });
+
   it("degrades skills failure and continues startup", async () => {
     const deps = makeCoreDeps([], {
       initSkills: () => { throw new Error("skills broken"); },

@@ -95,6 +95,29 @@ describe("build-options", () => {
     expect(result.options.toolSystemContent).not.toContain("插件上下文：demo");
   });
 
+  it("无头插件任务把显式 promptSource 传给插件提示词 Provider", async () => {
+    const deps = createBuildDeps();
+    deps.buildPluginPromptContext = vi.fn(async (input) => `[${input.source}] ${input.channel}`);
+
+    const result = await buildAgentRunOptions({
+      sessionId: "plugin:minecraft-bot",
+      mode: "work",
+      executionMode: "work",
+      promptSource: "plugin-agent",
+      promptChannel: "minecraft",
+      messages: [{ role: "user", content: "收集木头" }],
+    } as never, deps);
+
+    expect(deps.buildPluginPromptContext).toHaveBeenCalledWith({
+      source: "plugin-agent",
+      mode: "work",
+      userText: "收集木头",
+      conversationId: "plugin:minecraft-bot",
+      channel: "minecraft",
+    });
+    expect(result.options.soulRuntimeContext).toContain("[plugin-agent] minecraft");
+  });
+
   it("keeps chat tool-free when enhancement switch is off", async () => {
     const deps = createBuildDeps();
     deps.toolRegistry.getEnabled = () => [

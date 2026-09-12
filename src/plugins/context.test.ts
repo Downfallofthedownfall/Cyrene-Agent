@@ -326,6 +326,19 @@ describe("createContext", () => {
     expect(marker).toHaveBeenCalledWith("set");
   });
 
+  it("包装 llm 服务时保留宿主提供的 runGoal", () => {
+    tmp = mkdtempSync(path.join(os.tmpdir(), "cyrene-ctx-test-"));
+    const rt = runtime();
+    const runGoal = vi.fn();
+    rt.llm = {
+      generateText: async () => "text",
+      runGoal,
+    } as unknown as NonNullable<PluginRuntime["llm"]>;
+
+    const ctx = createTestContext(rt, ["llm"]);
+    expect((ctx.deps.llm as { runGoal?: unknown } | undefined)?.runGoal).toBe(runGoal);
+  });
+
   it("dispose 返回 Promise 并等待渠道注销完成", async () => {
     tmp = mkdtempSync(path.join(os.tmpdir(), "cyrene-ctx-test-"));
     const rt = runtime();

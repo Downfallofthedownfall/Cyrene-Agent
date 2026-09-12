@@ -24,6 +24,11 @@ export interface PluginHostServicesOptions {
   channelManager: { has(channelId: string): boolean };
   /** 基础 LLM 服务；purpose 前缀由框架按 pluginId 统一包装。 */
   llm: PluginLlmService;
+  /** 为每个插件绑定无头目标运行入口；未提供时保持旧宿主兼容。 */
+  createAgentRunner?: (input: {
+    pluginId: string;
+    signal: AbortSignal;
+  }) => NonNullable<PluginLlmService["runGoal"]>;
   storage: SafeStorageLike;
   chatsReader: PluginHostChatsReader;
   /** 调度存储；必须在 store.load() 完成后再创建工厂，否则插件写入会覆盖磁盘数据。 */
@@ -40,9 +45,13 @@ export interface PluginHostServicesOptions {
 export function createHostServiceFactory(options: PluginHostServicesOptions): PluginHostServiceFactory {
   return {
     createForPlugin({ pluginId, signal, trackResource }) {
+      const runGoal = options.createAgentRunner?.({ pluginId, signal });
       return {
         channels: { has: (channelId) => options.channelManager.has(channelId) },
-        llm: options.llm,
+        llm: {
+          ...options.llm,
+          ...(runGoal ? { runGoal } : {}),
+        },
         secrets: createPluginSecretsService({
           pluginId,
           secretsRoot: path.join(options.pluginDataRoot, pluginId, "secrets"),

@@ -80,6 +80,7 @@ function wrapLlmPurpose(service: PluginLlmService, pluginId: string): PluginLlmS
       ...options,
       purpose: options?.purpose ? `${pluginId}:${options.purpose}` : pluginId,
     }),
+    ...(service.runGoal ? { runGoal: service.runGoal } : {}),
   };
 }
 

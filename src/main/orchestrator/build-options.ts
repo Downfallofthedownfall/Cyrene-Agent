@@ -158,7 +158,7 @@ export interface BuildOptionsDeps {
   getWorkspaceBinding?: (conversationId: string) => { workspaceRoot: string; displayName: string; boundAt: number } | undefined;
   /** 构建已启用插件贡献的每轮动态提示词；失败时调用方应降级为空内容。 */
   buildPluginPromptContext?: (input: {
-    source: "conversation";
+    source: "conversation" | "plugin-agent";
     mode: ConversationMode;
     userText: string;
     conversationId?: string;
@@ -637,11 +637,11 @@ export async function buildAgentRunOptions(
   let pluginPromptContext = "";
   try {
     pluginPromptContext = await deps.buildPluginPromptContext?.({
-      source: "conversation",
+      source: input.promptSource ?? "conversation",
       mode: resolvedMode,
       userText: latestUserText,
       conversationId,
-      channel: input.channel,
+      channel: input.promptChannel ?? input.channel,
     }) ?? "";
   } catch (error) {
     console.warn("[plugins] 构建插件提示词上下文失败，已跳过", error);

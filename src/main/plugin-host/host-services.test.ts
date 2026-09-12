@@ -1,7 +1,7 @@
 import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { isPluginHostError } from "../../plugins/api";
 import { createHostServiceFactory } from "./host-services";
 import type { PluginSchedulerStore } from "./scheduler-service";
@@ -137,5 +137,32 @@ describe("宿主服务装配工厂", () => {
     await expect(deps.scheduler?.listTasks()).rejects.toSatisfy(
       (err: unknown) => isPluginHostError(err) && err.code === "E_PLUGIN_STOPPING",
     );
+  });
+
+  it("为每个插件绑定独立的 runGoal 入口", () => {
+    const runGoal = async () => ({
+      text: "done",
+      terminal: { status: "success" as const, externalEffectsMayContinue: false },
+      rounds: 1,
+    });
+    const createAgentRunner = vi.fn(() => runGoal);
+    const hostServices = createHostServiceFactory({
+      pluginDataRoot: tmp,
+      channelManager: { has: () => false },
+      llm: { generateText: async () => "llm-result" },
+      createAgentRunner,
+      storage: fakeStorage,
+      chatsReader: reader,
+      schedulerStore,
+    } as never);
+
+    const deps = hostServices.createForPlugin({
+      pluginId: "minecraft-bot",
+      signal: new AbortController().signal,
+      trackResource: undefined as never,
+    });
+
+    expect(createAgentRunner).toHaveBeenCalledWith(expect.objectContaining({ pluginId: "minecraft-bot" }));
+    expect(deps.llm?.runGoal).toBe(runGoal);
   });
 });

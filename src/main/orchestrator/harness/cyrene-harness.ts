@@ -100,6 +100,12 @@ export async function runCyreneHarness(input: HarnessInput): Promise<HarnessResu
     }
     // 用户取消：finalAnswer 保持为空，不生成 "最终回复被取消。" 之类的占位文案。
     if (input.signal?.aborted) return cancelledResult(run);
+    // 工具轮上限在下一次模型请求前检查：避免超限后再产生一次 LLM 调用。
+    if (run.config.maxRounds > 0 && run.rounds >= run.config.maxRounds) {
+      const finalAnswer = run.streamController.getBuffered() || buildMaxRoundsReply(run.state, run.config.maxRounds);
+      input.onEvent?.({ type: "final_answer", content: finalAnswer });
+      return finishRun(run, finalAnswer, true, "max_rounds");
+    }
 
     const promptLayers = buildRoundPromptLayers(input);
     const roundId = `round-${run.rounds}`;
@@ -432,6 +438,31 @@ function buildTimeoutReply(state: AgentState): string {
     "抱歉，任务执行时间较长，已达到时间上限。",
     "",
     "中断原因：执行超时",
+  ];
+
+  if (state.todoItems.length > 0) {
+    parts.push("", "当前待办状态：");
+    for (const t of state.todoItems) {
+      parts.push(`  [${t.status}] ${t.content}`);
+    }
+  }
+
+  if (state.uncertainEffects.length > 0) {
+    parts.push("", "⚠️ 以下副作用结果未知：");
+    for (const e of state.uncertainEffects) {
+      parts.push(`  - ${e.toolName}: ${e.message}`);
+    }
+  }
+
+  return parts.join("\n");
+}
+
+/** 工具轮数到达上限时的确定性兜底回复；不得为总结而追加模型调用。 */
+function buildMaxRoundsReply(state: AgentState, maxRounds: number): string {
+  const parts: string[] = [
+    `任务已达到工具轮次上限（${maxRounds}），已停止继续执行。`,
+    "",
+    "中断原因：工具轮次上限",
   ];
 
   if (state.todoItems.length > 0) {

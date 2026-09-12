@@ -149,6 +149,26 @@ describe("场景作用域（sources）", () => {
     expect(await registry.build({ source: "conversation", mode: "chat", userText: "hi" })).toBe("");
   });
 
+  it("plugin-agent 场景只调用显式声明该来源的 Provider", async () => {
+    const registry = createPluginPromptRegistry();
+    const signal = new AbortController().signal;
+    registry.register("minecraft", {
+      id: "goal-context",
+      sources: ["plugin-agent"] as unknown as PluginPromptSource[],
+      provide: ({ source }) => `GOAL:${source}`,
+    }, signal);
+    registry.register("legacy", {
+      id: "conversation-context",
+      provide: () => "LEGACY",
+    }, signal);
+
+    expect(await registry.build({
+      source: "plugin-agent",
+      mode: "work",
+      userText: "收集木头",
+    } as never)).toBe("[插件上下文：plugin:minecraft:goal-context]\nGOAL:plugin-agent");
+  });
+
   it("moments-post 场景下 Provider 抛错时降级为空串", async () => {
     const registry = createPluginPromptRegistry();
     const signal = new AbortController().signal;
