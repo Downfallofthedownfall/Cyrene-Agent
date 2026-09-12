@@ -13,6 +13,8 @@
   <strong>国内镜像</strong>：<a href="https://gitee.com/playa0/cyrene-agent">Gitee</a>
 </p>
 
+> ⚠️ **临时公告（2026-09-13）**：GitHub 账号暂时被封禁，正在申诉。期间 GitHub 仓库无法访问，请克隆 Gitee 镜像；GitHub 恢复后将同步更新。
+
 
 **Cyrene-Agent 是一个以《崩坏：星穹铁道》昔涟为核心角色的 Windows Live2D AI 桌面伴侣。**
 
