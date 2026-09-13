@@ -662,7 +662,7 @@ body {
   font: var(--rb-text-small-em);
 }
 
-.setting-row span {
+.setting-row > div > span {
   display: block;
   color: var(--rb-text-muted);
   font: var(--rb-text-small);

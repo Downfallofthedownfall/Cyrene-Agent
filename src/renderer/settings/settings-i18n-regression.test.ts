@@ -15,6 +15,30 @@ function createSettingsDocument(): JSDOM {
 }
 
 describe("settings i18n regressions", () => {
+  it("keeps inline GPU copy inline inside the translated description", () => {
+    const dom = createSettingsDocument();
+    const style = dom.window.document.createElement("style");
+    style.textContent = css;
+    dom.window.document.head.append(style);
+
+    const description = dom.window.document.querySelector<HTMLElement>(
+      '[data-i18n="panel.general.disableGpu.desc"]',
+    );
+    const linkPrefix = dom.window.document.querySelector<HTMLElement>(
+      '[data-i18n="panel.general.disableGpu.descLink"]',
+    );
+    const restartNotice = dom.window.document.querySelector<HTMLElement>(
+      '[data-i18n="panel.general.disableGpu.notice"]',
+    );
+
+    expect(description).not.toBeNull();
+    expect(linkPrefix).not.toBeNull();
+    expect(restartNotice).not.toBeNull();
+    expect(dom.window.getComputedStyle(description!).display).toBe("inline");
+    expect(dom.window.getComputedStyle(linkPrefix!).display).toBe("inline");
+    expect(dom.window.getComputedStyle(restartNotice!).display).toBe("inline");
+  });
+
   it("renders custom-style actions with white text", () => {
     const dom = createSettingsDocument();
     const style = dom.window.document.createElement("style");
