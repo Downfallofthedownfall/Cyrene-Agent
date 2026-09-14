@@ -638,13 +638,6 @@ MIT 仅约束本仓库的源代码，不适用于角色、Live2D 模型与美术
 	<tbody>
 		<tr>
             <td align="center">
-                <a href="https://github.com/Playa-0v0">
-                    <img src="https://avatars.githubusercontent.com/u/300061045?v=4" width="48;" alt="Playa-0v0"/>
-                    <br />
-                    <sub><b>Playa</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/lll69">
                     <img src="https://avatars.githubusercontent.com/u/60803753?v=4" width="48;" alt="lll69"/>
                     <br />
@@ -707,8 +700,6 @@ MIT 仅约束本仓库的源代码，不适用于角色、Live2D 模型与美术
                     <sub><b>Tobi1chi</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/proobker">
                     <img src="https://avatars.githubusercontent.com/u/89506631?v=4" width="48;" alt="proobker"/>
