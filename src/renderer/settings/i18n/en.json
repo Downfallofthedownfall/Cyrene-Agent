@@ -1,1 +1,1088 @@
-{}
+{
+  "settings": {
+    "nav": {
+      "ariaLabel": "Settings navigation",
+      "brand": "Cyrene",
+      "memory": "Memory",
+      "user": "User info",
+      "tasks": "Scheduled tasks",
+      "plugins": "Tool configuration",
+      "preferences": "Preferences",
+      "appearance": "Appearance",
+      "general": "General",
+      "api": "API settings",
+      "apiAdvanced": "Advanced",
+      "cyrene": "Cyrene settings",
+      "channels": "Connect phone",
+      "tts": "TTS settings",
+      "asr": "ASR settings",
+      "tokens": "Token usage",
+      "disclaimer": "Disclaimer",
+      "memoryHint": "Manage long-term memory and profile",
+      "chat": "Chat",
+      "chatHint": "Manage chat windows and sessions",
+      "userHint": "Edit your personal info",
+      "tasksHint": "Manage scheduled reminders and schedule",
+      "pluginsHint": "Manage the tools Cyrene can call",
+      "cyreneHint": "Manage agent behavior, memory, RAG, and permissions",
+      "ttsHint": "TTS synthesis and read aloud preferences",
+      "asrHint": "Speech recognition and call settings",
+      "preferencesHint": "Set default preferences for chat windows and output behavior",
+      "appearanceHint": "Adjust window layout, UI theme, and Cyrene's desktop pet",
+      "generalHint": "Manage windows, audio, and system behavior",
+      "apiHint": "After choosing a preset, you only need to fill in the API key.",
+      "apiAdvancedHint": "Configure API timeout and invocation mode.",
+      "tokensHint": "View API call statistics and usage",
+      "disclaimerHint": "Terms of use and privacy notice"
+    },
+    "app": {
+      "title": "Cyrene · Settings"
+    },
+    "panel": {
+      "api": {
+        "heading": "API settings",
+        "subheading": "Set up a model service first; Cyrene will use it for chat and status checks later.",
+        "profileList": {
+          "title": "Saved profiles",
+          "subtitle": "Click a profile to load it for editing; switch between profiles in the model panel of the chat window."
+        },
+        "presetRow": {
+          "label": "New profile · Choose a provider preset"
+        },
+        "customEndpoint": {
+          "title": "Custom endpoint",
+          "badge": "Advanced",
+          "summary": "Connect a cloud service that follows the OpenAI or Anthropic protocol; capabilities are decided by the service provider.",
+          "mode": {
+            "cloud": "Cloud service",
+            "local": "Local service"
+          },
+          "guide": "Setup guide & FAQ",
+          "overrides": {
+            "title": "Custom endpoint overrides",
+            "subtitle": "Only applies when the current provider is a custom endpoint.",
+            "disableMaxToken": {
+              "title": "Remove max_token limit",
+              "desc": "Removes the max_token limit from all requests; suited to local models."
+            },
+            "enableThinking": {
+              "title": "Force enable model thinking",
+              "desc": "Forces the model into thinking mode."
+            },
+            "disableThinking": {
+              "title": "Force disable model thinking",
+              "desc": "Forces the model to skip outputting its thinking process."
+            }
+          }
+        },
+        "editor": {
+          "title": "New profile",
+          "subtitle": "The nickname tells apart configurations that share a model name but use different APIs; the context window and multimodal setting follow the profile and take effect automatically when you switch profiles in the chat window."
+        },
+        "field": {
+          "nickname": {
+            "label": "Nickname"
+          },
+          "apiKey": {
+            "label": "API key",
+            "hint": "Enter the API key created on the matching platform"
+          },
+          "baseUrl": {
+            "label": "Base URL"
+          },
+          "transport": {
+            "label": "API protocol",
+            "openai": "chat/completion",
+            "anthropic": "anthropic",
+            "responses": "Responses",
+            "hint": "Choose the interface type your provider actually offers (chat/completion / anthropic / Responses); the app will not detect the protocol automatically."
+          },
+          "model": {
+            "label": "Model name",
+            "contextWindow": "Context window (token)",
+            "contextWindowHint": "Saved per profile; leave empty to use 256000.",
+            "multimodal": {
+              "title": "Multimodal (can send images directly)",
+              "desc": "When on, images go straight to this model; when off, they are described by the vision model below. Applies per profile."
+            }
+          },
+          "timeout": {
+            "label": "Test timeout (ms, 1s=1000ms)"
+          }
+        },
+        "presetWebsiteLink": "↗ Official site",
+        "noteText": "Choosing a model preset fills in the provider, base URL, and model name automatically; you only need to enter the API key for that platform. The configuration is saved only in your local Electron user data directory.",
+        "workFlowAdapt": "Model provider Work flow adaptation",
+        "vision": {
+          "title": "Vision model (global)",
+          "desc": "When a profile has multimodal off, this standalone vision model describes images instead. Leave it empty and Cyrene will honestly say she can't see them.",
+          "baseUrl": {
+            "label": "Base URL"
+          },
+          "apiKey": {
+            "label": "API key"
+          },
+          "model": {
+            "label": "Vision model"
+          },
+          "hint": "ⓘ This model must support the OpenAI-compatible /chat/completions endpoint and image_url multimodal input",
+          "testButton": "Test vision model"
+        },
+        "saveStatus": "Waiting to save",
+        "deleteProfileButton": "Delete profile",
+        "testConnectionButton": "Test connection",
+        "saveButton": "Save profile"
+      },
+      "preferences": {
+        "heading": "Preferences",
+        "subheading": "Set the default behavior when the chat window opens. Your choices here are saved as global defaults.",
+        "chatMode": {
+          "title": "Default mode",
+          "desc": "The mode used by default when the chat window opens; you can still switch temporarily inside the window.",
+          "option": {
+            "chat": "Chat"
+          }
+        },
+        "segmented": {
+          "title": "Segmented output",
+          "desc": "Controls how Cyrene's replies are split into segments in the chat bubble; it does not change the model's actual reply content.",
+          "option": {
+            "all": "All",
+            "chat": "Chat",
+            "off": "Off"
+          }
+        },
+        "mobileSeg": {
+          "title": "Mobile message segmentation",
+          "desc": "Replies sent to your phone are split at 。！？； into several messages; please turn this on after disabling tool use.",
+          "option": {
+            "off": "Off",
+            "on": "Enable"
+          }
+        },
+        "customStyle": {
+          "title": "Custom style",
+          "desc": "Configure the sampling parameters for the chat window's \"custom\" style, or open the custom prompt file.",
+          "button": "Custom style sampling",
+          "promptButton": "Open prompt file"
+        },
+        "proactive": {
+          "title": "Proactive chat",
+          "desc": "Cyrene will start conversations at suitable times; she will not interrupt you late at night when you are inactive, during a normal chat, or after two consecutive unanswered messages.",
+          "option": {
+            "off": "Off",
+            "on": "Enable"
+          },
+          "delivery": {
+            "title": "Send proactive messages to",
+            "desc": "When the phone channel is unavailable, that proactive message is cancelled and will not be rerouted locally.",
+            "option": {
+              "local": "Local only",
+              "wechat": "WeChat only",
+              "feishu": "Feishu only"
+            }
+          }
+        },
+        "moments": {
+          "title": "Moments",
+          "desc": "Enable the Moments feature; when off, Cyrene stops posting, liking and commenting, and chats no longer reference Moments content.",
+          "posting": {
+            "title": "Cyrene posts Moments",
+            "desc": "After a conversation ends, Cyrene posts the moments worth recording as a Moment; at most 2 per day, at least 6 hours apart."
+          },
+          "reactions": {
+            "title": "Cyrene reacts to Moments",
+            "desc": "Cyrene likes and comments on your Moments, and replies to messages left for her in the comment section."
+          },
+          "character": {
+            "title": "Character Moments",
+            "desc": "Resident characters such as Long Night's Moon and Mydei also browse Moments, liking, commenting and chatting with each other as their personalities dictate; the daily model call limit scales with the liveliness setting."
+          },
+          "liveliness": {
+            "title": "Moments liveliness",
+            "desc": "Controls how many characters see each Moment: when quiet, occasionally nobody responds; when lively, almost every Moment gets attention.",
+            "option": {
+              "quiet": "Quiet",
+              "natural": "Natural",
+              "lively": "Lively"
+            }
+          }
+        },
+        "chatSocial": {
+          "title": "Chat context enhancement",
+          "desc": "Uses relevant past information and open topics in Chat mode only, making continuous conversation more natural; at most one extra asynchronous model call per turn."
+        },
+        "cita": {
+          "title": "CITA context awareness",
+          "desc": "Helps Cyrene understand cross-turn state, references and omitted expressions.",
+          "engine": {
+            "title": "Semantic cognition method",
+            "desc": "The local semantic model will be available in a future version.",
+            "option": {
+              "remote": "Online large model",
+              "local": "Local semantic model (not yet available)"
+            }
+          }
+        },
+        "saveStatus": "Waiting to save",
+        "saveButton": "Save preferences"
+      },
+      "appearance": {
+        "heading": "Appearance",
+        "subheading": "Adjust the window layout of the light UI and how Cyrene's desktop pet is displayed.",
+        "layout": {
+          "title": "Layout",
+          "desc": "Choose how Cyrene, chat, status, and schedule windows are organized.",
+          "option": {
+            "multiWindow": {
+              "title": "Multiple windows",
+              "desc": "Each feature uses its own window"
+            },
+            "singleWindow": {
+              "title": "Single window",
+              "desc": "Everything in one main window"
+            }
+          }
+        },
+        "personalize": {
+          "title": "Personalization",
+          "desc": "Fonts and icons apply immediately; only import font files you have the right to use.",
+          "windowCornerRadius": {
+            "title": "Window corner radius",
+            "desc": "Adjust the corner radius of all app windows (0 ~ 40px)."
+          },
+          "uiFont": {
+            "title": "UI font",
+            "current": "Source Han Sans (default)",
+            "importButton": "Import font",
+            "resetButton": "Reset to default"
+          },
+          "chatLineHeight": {
+            "title": "Line spacing",
+            "desc": "Adjust the line height of text inside message bubbles (1.2 ~ 2.0)."
+          },
+          "assistantBubble": {
+            "title": "Cyrene reply bubble",
+            "desc": "When off, Cyrene's regular replies appear as plain text without a background; user message bubbles are always kept."
+          },
+          "chatParaSpacing": {
+            "title": "Paragraph spacing",
+            "desc": "Adjust the spacing between paragraphs inside message bubbles (0.2 ~ 1.2em)."
+          },
+          "uiIcon": {
+            "title": "Desktop icon",
+            "desc": "Switch the system tray and app window icons."
+          },
+          "chatBg": {
+            "soon": "Chat background"
+          }
+        },
+        "pet": {
+          "title": "Cyrene desktop pet",
+          "desc": "Control the Live2D desktop pet's window layer, visibility, and size.",
+          "alwaysOnTop": {
+            "title": "Keep pet on top",
+            "desc": "Only the desktop pet stays on top; chat and side windows are not pinned."
+          },
+          "visible": {
+            "title": "Pet visibility",
+            "desc": "Hide or show the Live2D desktop pet itself."
+          },
+          "zoom": {
+            "title": "Pet zoom",
+            "desc": "Adjust the Live2D model size (0.5× ~ 2.0×); the window scales with the model."
+          }
+        },
+        "saveStatus": "Applies automatically after changes"
+      },
+      "general": {
+        "heading": "General settings",
+        "subheading": "Control the status bar, the schedule bar, basic audio, and system behavior.",
+        "statusBar": {
+          "title": "Status bar window",
+          "desc": "If you close it by accident, you can reopen it from here."
+        },
+        "tasksBar": {
+          "title": "Schedule bar window",
+          "desc": "Controls the schedule/task display window on the right."
+        },
+        "toastSound": {
+          "title": "Notification sound",
+          "desc": "The chime from the popup in the bottom-right corner when Cyrene is waiting for your confirmation or a task has finished."
+        },
+        "launchAtLogin": {
+          "title": "Launch at login",
+          "desc": "Opens Cyrene automatically when the system starts."
+        },
+        "chatHistory": {
+          "title": "Chat history management",
+          "desc": "Clear all local chat sessions.",
+          "clearButton": "Clear history"
+        },
+        "language": {
+          "title": "Language",
+          "desc": "Only Chinese is supported for now; other languages are still in development.",
+          "option": {
+            "zh": "Chinese",
+            "ja": "Japanese",
+            "ko": "Korean"
+          }
+        },
+        "disableGpu": {
+          "title": "Disable client GPU rendering",
+          "desc": "Adds the --disable-gpu flag to Electron to use software rendering, lowering the client's GPU load but increasing CPU load.",
+          "descLink": "You can check ",
+          "gpuInternalsLink": "GPU internals page",
+          "descLink2": " to see whether GPU rendering is currently in use.",
+          "descBefore": "After changing this, ",
+          "notice": "fully quit and restart the client",
+          "descAfter": " for it to take effect."
+        },
+        "about": {
+          "title": "About",
+          "desc": "· A lightweight emotional companion desktop agent"
+        },
+        "saveStatus": "Waiting to save"
+      },
+      "cyrene": {
+        "heading": "Cyrene settings",
+        "subheading": "Manage Cyrene's agent behavior, status updates, stickers, memory, and local retrieval capabilities here.",
+        "runtimeSync": {
+          "title": "Real-Time status bar updates",
+          "desc": "Controls how status and mood are synced to the status bar.",
+          "option": {
+            "off": "Off",
+            "local": "Local keywords",
+            "llm": "LLM analysis"
+          },
+          "note": "LLM mode makes one extra model call per turn, producing extra token usage."
+        },
+        "sticker": {
+          "title": "Sticker sending",
+          "desc": "Controls whether Cyrene sends stickers in the chat box, and how large stickers are displayed.",
+          "sendEnabled": "Send status: allow sending stickers",
+          "size": {
+            "title": "Sticker display size",
+            "option": {
+              "small": "Small",
+              "standard": "Standard",
+              "large": "Large"
+            }
+          },
+          "threshold": {
+            "title": "Similarity threshold",
+            "desc": "The lower the value, the easier it is to trigger a sticker; the higher the value, the more precise the match"
+          },
+          "manageButton": "Manage stickers",
+          "addButton": "+ Add sticker"
+        },
+        "embedding": {
+          "title": "RAG / Document import",
+          "desc": "Choose the local retrieval model, later used for file import, world book, and long-term memory recall.",
+          "modelTitle": "Embedding model",
+          "bgem3Title": "BGE-M3",
+          "bgem3Desc": "Excellent Chinese performance; supports semantic sticker matching and scene tone injection.",
+          "dimTitle": "Embedding dimensions",
+          "dimHint": "Empty = auto-detect on first request; filled = strict validation",
+          "rerankTitle": "Rerank",
+          "rerankBase": "bge-reranker-base",
+          "rerankBaseDesc": "Precise reranking, suited to long documents and professional retrieval, about 200ms per pair.",
+          "rerankOff": "Off",
+          "rerankOffDesc": "No reranking; retrieval results are used directly.",
+          "rerankOffHint": "No model needed",
+          "modeTitle": "Current mode",
+          "modeAuto": "Auto (prefer installed models)",
+          "downloadButton": "📖 Model installation guide",
+          "deleteButton": "Delete cache",
+          "updateButton": "Check for updates",
+          "mirrorTitle": "Download mirror",
+          "mirrorOfficial": "Official",
+          "mirrorHf": "hf-mirror",
+          "note": "These buttons are UI placeholders for now; installer-selectable models, model status detection, and document import retrieval will be wired up later."
+        },
+        "saveStatus": "Waiting to save",
+        "saveButton": "Save Cyrene settings"
+      },
+      "memory": {
+        "heading": "Cyrene's memory",
+        "subheading": "What Cyrene knows and remembers about you. You can view, edit, and manage it.",
+        "l0": {
+          "title": "Long-Term profile",
+          "desc": "Information Cyrene always remembers and that rarely changes",
+          "hint": "Manual edits take priority over automatic inference",
+          "fieldName": "Preferred name",
+          "fieldOccupation": "Occupation / Role",
+          "fieldInterests": "Long-Term interests",
+          "fieldLanguage": "Preferred language",
+          "fieldNote": "Permanent note"
+        },
+        "editButton": "Edit",
+        "cancelButton": "Cancel",
+        "l1": {
+          "title": "Recent status",
+          "desc": "Recent goals, preferences, and status that change over time",
+          "hint": "Manual edits take priority over automatic inference",
+          "fieldGoals": "Recent goals",
+          "fieldPreferences": "Recent preferences",
+          "fieldProject": "Current project"
+        },
+        "l2": {
+          "title": "Event snippets",
+          "desc": "Important events distilled from chats; searchable and manageable",
+          "empty": "No event snippets yet",
+          "emptyHint": "Cyrene distills important information automatically after you chat"
+        },
+        "imported": {
+          "title": "Imported knowledge",
+          "desc": "Documents and knowledge bases you have uploaded",
+          "empty": "No imported documents yet",
+          "emptyHint": "Files are indexed automatically after you upload them in the chat window"
+        },
+        "reflection": {
+          "title": "Reflections",
+          "desc": "Periodic reflections generated automatically by AI",
+          "empty": "No reflections yet",
+          "emptyHint": "Generated automatically as you keep chatting"
+        },
+        "obsidian": {
+          "title": "Obsidian vault binding",
+          "desc": "Bind a folder to sync memories into .md files connected with [[bidirectional links]]",
+          "hint": "Open the bound folder in Obsidian to see the graph view",
+          "bindButton": "Bind vault folder",
+          "syncButton": "Sync now",
+          "unbindButton": "Unbind",
+          "autoSync": "Auto sync (write automatically 2 seconds after memories change)"
+        }
+      },
+      "user": {
+        "heading": "My information",
+        "subheading": "Your personal identity and cloud account (coming soon)",
+        "uploadAvatarButton": "Upload avatar",
+        "avatarHint": "Supports JPG and PNG; a 1:1 ratio is recommended",
+        "nicknameLabel": "Nickname",
+        "genderLabel": "Gender",
+        "genderSecret": "Prefer not to say",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "callPrefLabel": "What she calls you",
+        "birthdayLabel": "Birthday",
+        "cityLabel": "Default city",
+        "timezoneLabel": "Time zone",
+        "fieldHint": "This information tells Cyrene how to address you and where you are. The default city is used by tools that need a location, such as weather; the time zone is only used for time calculations and does not indicate your city."
+      },
+      "tasks": {
+        "heading": "Scheduled tasks",
+        "subheading": "Manage automatically triggered agent tasks. When the time comes, the prompt is used to call the currently allowed tools.",
+        "listTitle": "Task list",
+        "listHint": "Task changes are saved immediately; no need to click the global save button.",
+        "newButton": "+ New task",
+        "empty": "No scheduled tasks yet. Create one to let Cyrene run a prompt automatically on schedule.",
+        "editorTitle": "New scheduled task",
+        "closeButton": "Close",
+        "fieldTitle": "Title",
+        "fieldPrompt": "Prompt",
+        "enabledTitle": "Enable",
+        "enabledDesc": "When off, it will not trigger automatically, but you can still run it manually at any time.",
+        "fieldKind": "Frequency",
+        "kindOnce": "Once",
+        "kindDaily": "Daily",
+        "kindWeekly": "Weekly",
+        "kindInterval": "Interval",
+        "fieldRunAt": "Run time",
+        "fieldTimeOfDay": "Time",
+        "fieldDayOfWeek": "Day of week",
+        "dayMon": "Monday",
+        "dayTue": "Tuesday",
+        "dayWed": "Wednesday",
+        "dayThu": "Thursday",
+        "dayFri": "Friday",
+        "daySat": "Saturday",
+        "daySun": "Sunday",
+        "fieldIntervalEvery": "Interval value",
+        "fieldIntervalUnit": "Interval unit",
+        "intervalMinutes": "Minutes",
+        "intervalHours": "Hours",
+        "toolLimitTitle": "Advanced tool limits",
+        "toolLimitDesc": "When on, only the tools selected below can be called; this does not bypass the plugin global switches.",
+        "toolEmptyHint": "With no tools selected, the task can only use the model's own abilities and will not call any tools.",
+        "saveStatus": "Waiting for action",
+        "cancelButton": "Cancel",
+        "saveButton": "Save task"
+      },
+      "channels": {
+        "logSummary": "Message log (last 100)",
+        "logRefresh": "Refresh",
+        "logClear": "Clear",
+        "logEmpty": "No messages yet.",
+        "heading": "Connect your phone",
+        "subheading": "Connect Cyrene to chat platforms such as WeChat and Feishu. Every user on an external channel gets their own session context and memory.",
+        "wechatTitle": "WeChat",
+        "statusOff": "Not enabled",
+        "wechatHint1": "Via tencent's",
+        "wechatHint2": " (the official personal WeChat access channel), connecting directly to WeChat with no external gateway needed.",
+        "wechatHint3": "Click \"scan to sign in\" to open a QR code window inside Cyrene; it connects automatically once you scan the code.",
+        "wechatLogin": "Scan to sign in",
+        "wechatRestart": "Restart connection",
+        "wechatQrTitle": "Sign in to WeChat with QR Code",
+        "wechatQrTip": "Scan the QR code with WeChat to sign in",
+        "wechatQrClose": "Close",
+        "feishuTitle": "Feishu",
+        "feishuHint1": "Receives messages over the official Feishu SDK's",
+        "feishuHint2": " (no public network access or NAT traversal required).",
+        "feishuHint3": "Go to",
+        "feishuHintLink": "Feishu open platform",
+        "feishuHint4": "to create a custom app → enable the \"bot\" capability → enter the app ID/Secret below → then enable it.",
+        "feishuAppId": "App ID",
+        "feishuAppSecret": "App secret",
+        "feishuSaveButton": "Save and connect",
+        "qqTitle": "QQ (NapCat / OneBot 11)",
+        "qqHint1": "Cyrene listens for a reverse WebSocket on windows, and NapCat connects as a WebSocket client.",
+        "qqHint2": "Group chats only respond to @ mentions in allowlisted groups; group chats share personal memory but have tools forcibly disabled, so only add trusted groups.",
+        "qqListenMode": "Listen mode",
+        "qqListenAuto": "Auto (prefer WSL, fall back to loopback)",
+        "qqListenWsl": "Windows WSL virtual adapter",
+        "qqListenLoopback": "Localhost 127.0.0.1 only",
+        "qqListenCustom": "Custom address",
+        "qqCustomHost": "Custom address",
+        "qqPort": "Listen port",
+        "qqUrl": "NapCat connection URL",
+        "copyButton": "Copy",
+        "qqToken": "Access token (optional)",
+        "generateButton": "Generate",
+        "qqPrivateAllowlist": "QQ private chat allowlist",
+        "qqGroupAllowlist": "Group ID allowlist",
+        "qqSaveButton": "Save and start listening",
+        "qqTestButton": "Test connection",
+        "qqBotTitle": "QQ bot (official open platform)",
+        "qqBotHint1": "Create a bot at q.qq.com and enter its AppID / AppSecret. The official protocol carries zero ban risk, but only supports passive replies",
+        "qqBotHint2": "(private chats: 4 messages per 60 minutes, group chats: 5 per 5 minutes, no proactive messages); group chats only respond to @ mentions in allowlisted groups.",
+        "qqBotHint3": "New bots start in sandbox mode, so you need to add test users on the open platform first.",
+        "qqBotAppId": "AppID",
+        "qqBotAppSecret": "AppSecret",
+        "qqBotAllowAny": "Allow all private chats",
+        "qqBotUserAllowlist": "Private chat user openid allowlist",
+        "qqBotGroupAllowlist": "Group openid allowlist",
+        "qqBotSaveButton": "Save and connect",
+        "qqBotTestButton": "Test connection",
+        "contextBindingTitle": "Context binding",
+        "contextHint": "Pick an external chat that recently received messages and an existing desktop session. Once bound, both sides continue with the same text context; the external channel's tool permissions are not changed.",
+        "contextSource": "External chat",
+        "contextEmpty": "No recent chats yet",
+        "contextTarget": "Desktop session",
+        "contextTargetEmpty": "No available sessions",
+        "contextBindButton": "Bind context",
+        "contextBindingsEmpty": "No bindings yet.",
+        "globalTitle": "Global",
+        "rateUser": "Rate limit (per user / minute)",
+        "rateChannel": "Rate limit (per channel / minute)",
+        "sendTts": "Send TTS audio messages",
+        "sendSticker": "Send stickers",
+        "mirrorDesktop": "Mirror on desktop",
+        "toolPermission": "Tool permission",
+        "toolPermissionOff": "Off",
+        "toolPermissionOffDesc": "Uses Chat: chat only, no tools are invoked.",
+        "toolPermissionAll": "All enabled",
+        "toolPermissionAllDesc": "Uses CyreneHarness: every phone-side tool runs directly, with no confirmation cards or per-item approvals."
+      },
+      "plugins": {
+        "heading": "Tool configuration",
+        "subheading": "Manage the tools Cyrene can call; when disabled, the scheduling layer will not use that tool.",
+        "weather": {
+          "title": "Weather lookup",
+          "desc": "Look up real-time weather and forecasts for a given city. Open-Meteo needs no setup, or use Amap (",
+          "registerKey": "Register key",
+          "descEnd": ").",
+          "source": "Weather source",
+          "sourceOpenMeteo": "Open-Meteo (no setup required, recommended)",
+          "sourceAmap": "Amap weather (requires key, accurate in China)",
+          "amapKey": "Amap key",
+          "amapHint": "Amap open platform → console → application management → create a \"web service\" type key.",
+          "hint": "Open-Meteo works out of the box with no setup. Set the default city in the \"my info\" panel."
+        },
+        "travel": {
+          "title": "Amap travel",
+          "desc": "Look up route planning and estimated times for driving/walking/cycling/transit. Requires an Amap key (",
+          "registerKey": "Register key",
+          "descEnd": ", shared with weather lookup).",
+          "amapKey": "Amap key",
+          "hint": "Amap open platform → console → application management → create a \"web service\" type key. Shares the same key as weather lookup."
+        },
+        "search": {
+          "title": "Web search",
+          "desc": "Lets Cyrene search the internet for real-time information. Pick a search provider and fill in the matching key.",
+          "engineLabel": "Search provider",
+          "engineBocha": "Bocha (china-based, AI-friendly)",
+          "engineTavily": "Tavily (overseas, AI-friendly)",
+          "engineMiniMax": "MiniMax (requires uvx)",
+          "engineAnySearch": "AnySearch",
+          "bochaKey": "Bocha key",
+          "tavilyKey": "Tavily key",
+          "minimaxKey": "MiniMax key",
+          "anySearchKey": "AnySearch key",
+          "hint": "Pick a search provider and fill in the matching key. MiniMax requires uvx (Python) to be installed first."
+        },
+        "email": {
+          "title": "Email sending",
+          "desc": "Send emails over SMTP, with optional attachments. Enter your mailbox SMTP authorization code (not your login password).",
+          "smtpHost": "SMTP host",
+          "smtpPort": "Port",
+          "smtpSecure": "Use SSL/TLS",
+          "smtpSecureHint": "Usually checked for port 465, unchecked for 587",
+          "smtpUser": "Sender email",
+          "smtpPass": "SMTP authorization code",
+          "fromName": "Sender name (optional)",
+          "hint": "QQ mail → settings → account → enable SMTP → get authorization code; the same goes for 163/Gmail."
+        },
+        "file": {
+          "title": "Local files",
+          "note": "Read-only: Cyrene will not modify any local files.",
+          "permProjectRead": "Full read-only",
+          "permRead": "Read-only",
+          "permAction": "Approval",
+          "permFull": "Full"
+        },
+        "playwright": {
+          "title": "Browser automation (Playwright)",
+          "desc": "Lets her click through web pages, fill in forms, take screenshots, and run UI flows. Uses the system's built-in edge browser, with no extra download needed.",
+          "descWarn": "Off by default."
+        },
+        "music": {
+          "title": "Music tools",
+          "desc": "NetEase cloud music and local music.",
+          "neteaseTitle": "NetEase cloud music",
+          "neteaseDesc": "Scan the QR code to log in, then search for and play songs.",
+          "localTitle": "Local music",
+          "localStatus": "Loading…",
+          "importFolder": "Import folder",
+          "importFiles": "Import files",
+          "openPlayer": "Open player"
+        }
+      },
+      "music": {
+        "returnButton": "← Back to music platform",
+        "neteaseTitle": "NetEase cloud music",
+        "neteaseSubtitle": "Scan the QR code to sign in, then search for songs and play them with the built-in mpv player.",
+        "openapi": {
+          "title": "OpenAPI configuration",
+          "hint": "Enter the appId and privateKey issued by the NetEase cloud music open platform to call the OpenAPI.",
+          "appId": "App ID",
+          "privateKey": "Private key (PKCS#8 base64 or PEM)",
+          "saveButton": "Save configuration"
+        },
+        "statusNotConnected": "Not connected yet",
+        "connectButton": "Connect NetEase cloud music",
+        "playerTitle": "Standalone player window",
+        "playerHint": "A card-style player with playlist switching, search, and lyrics display.",
+        "openPlayerButton": "Open player",
+        "qrScan": "Scan with the NetEase cloud music app",
+        "qrTip": "Scan the QR code with the NetEase cloud music app to sign in",
+        "qrStatus": "Current status: waiting for scan",
+        "searchTitle": "Search songs",
+        "searchHint": "Connect to NetEase cloud music to search songs and get daily recommendations.",
+        "searchButton": "Search",
+        "searchEmpty": "Connect to NetEase cloud music to search songs and get daily recommendations."
+      },
+      "disclaimer": {
+        "heading": "Disclaimer and terms of use",
+        "subheading": "Please read and understand the following terms before using this software.",
+        "section1": {
+          "title": "1. Project nature and copyright notice",
+          "p1": "This AI companion program is a personal, non-commercial fan project. The character design of \"Cyrene\" is derived from the game Honkai: Star Rail owned by miHoYo. All intellectual property rights and copyrights in the character name, worldview, original artwork, official text, and similar elements belong to miHoYo.",
+          "p2": "This project has no official authorization and is not official software; no partnership of any kind exists between the two parties."
+        },
+        "section2": {
+          "title": "2. Scope of use and prohibited conduct",
+          "p1": "The project is for personal, local, private use only. Any commercial use is strictly prohibited, including but not limited to selling the program, profiting from livestreams, running paid communities, commercial promotion and monetization, and falsely claiming to others that this program is an official product.",
+          "p2": "The stickers in the program are personally collected assets, for personal local use only; bulk distribution or circulation to others is prohibited."
+        },
+        "section3": {
+          "title": "3. User responsibility",
+          "p1": "Users bear sole responsibility for the content of their conversations with the AI.",
+          "p2": "You must not use this software to publish content that is illegal, vulgar, defamatory, maliciously smears the original IP, or violates public order and morals; users bear the consequences of any violation, and the developer assumes no joint liability."
+        },
+        "section4": {
+          "title": "4. No-Warranty statement",
+          "p1": "This project is an experimental open-source project and its stability is not guaranteed. The developer will not compensate for any loss arising from program bugs, hardware failure, loss of local chat data, or similar causes.",
+          "p2": "This software is provided \"as is\", without any express or implied warranty."
+        },
+        "section5": {
+          "title": "5. Contact channel for rights holders",
+          "p1": "If miHoYo / HoYoverse, as rights holders, believe that this software infringes upon their rights, please contact us through the following means; the author undertakes to actively cooperate in handling or taking it down within 7 business days of receiving notice.",
+          "email": "Email: 1357502569@qq.com (please put [copyright matter] in the subject line)",
+          "bilibiliLink": "Bilibili: playa0's creator page",
+          "bilibiliNote": "(please mark direct messages with [copyright contact])",
+          "githubLabel": "GitHub: ",
+          "githubLink": "Playa-0v0/Cyrene-Agent"
+        },
+        "section6": {
+          "title": "6. User feedback and bug reports",
+          "p1": "If you run into problems or bugs, or have feature suggestions, you are welcome to submit them through the following channels.",
+          "email": "Email 1357502569@qq.com (please include [feedback] or [bug] in the subject)",
+          "bilibiliLink": "Send a direct message to playa0 on Bilibili",
+          "bilibiliNote": "(start with [Feedback/Bug])",
+          "githubLink": "GitHub issues",
+          "githubNote": "(submit bugs / feature suggestions)",
+          "outro": "I will do my best to read feedback from regular users, but I cannot guarantee a timely reply; copyright matters have the highest response priority."
+        },
+        "section7": {
+          "title": "7. AI-Generated content and a reminder about mindset",
+          "p1": "In this software, all dialogue, responses, and behavior of AI characters are generated in real time by a large language model. The character personas and personalities are fictional settings and are not real individuals. AI output has no real emotions, self-awareness, or subjective intent.",
+          "p2": "Please note:",
+          "li1": "All conversation content is AI-generated and does not represent the views or feelings of any real individual.",
+          "li2": "This software is an entertainment-oriented assistive tool and cannot replace real social relationships, family bonds, friendships, or professional psychological counseling.",
+          "li3": "Please do not become emotionally dependent on AI characters, or treat virtual interaction as a substitute for real-world interpersonal relationships.",
+          "li4": "While enjoying the companionship experience, we suggest that you maintain healthy social connections with the real world."
+        },
+        "section8": {
+          "title": "8. Special thanks",
+          "p1": "Special thanks to the Bilibili creator",
+          "upLink": "ShiYiQiDa",
+          "p2": "for creating and sharing Live2D model-related resources, which provided important reference and support for this project's desktop pet display. This project remains a personal, non-commercial fan project, and copyright in the related assets belongs to the original rights holders; if there is any infringement or improper use, we will actively cooperate to resolve it."
+        },
+        "section9": {
+          "title": "9. Thanks to contributors",
+          "p1": "Thanks to all the developers who contributed to the project by submitting pull requests on GitHub. For the complete contributor list, see:",
+          "contributorsLink": "Cyrene-Agent contributors page →",
+          "p2": "We also thank everyone who submitted feedback and suggestions in issues and supported this project with a Star."
+        },
+        "section10": {
+          "title": "10. Effect of these terms",
+          "p1": "Installing or using this software means that you have read, understood, and agreed to all the terms of this disclaimer."
+        }
+      },
+      "tokens": {
+        "heading": "Token usage",
+        "subheading": "View API call statistics and consumption",
+        "realUsage": "Actual consumption",
+        "requestCount": "🔢 Requests",
+        "inputLabel": "Input",
+        "outputLabel": "Output",
+        "cacheHitLabel": "Cache hits",
+        "cacheSummaryTitle": "Token statistics",
+        "resetButton": "Reset counters",
+        "summaryRequests": "Total requests",
+        "summaryTotal": "Total tokens",
+        "summaryHit": "Cached tokens",
+        "summaryHitRate": "Overall cache hit rate",
+        "summaryHitRateEmpty": "The model did not provide cache statistics",
+        "empty": "No usage data yet",
+        "emptyHint": "After you chat with Cyrene, real token consumption statistics will appear here",
+        "chartBar": "Daily consumption bar chart",
+        "chartTrend": "Usage trend",
+        "chartModelShare": "Model usage share"
+      },
+      "tts": {
+        "heading": "TTS settings",
+        "subheading": "Speech synthesis and read-aloud preferences",
+        "playbackTitle": "Playback interaction",
+        "autoReadTitle": "Auto-read replies",
+        "autoReadDesc": "Cyrene reads every reply aloud automatically",
+        "splitEnabledTitle": "Split text for auto-read",
+        "splitEnabledDesc": "Read chunks aloud while the reply is being generated; turn it off to wait for the full reply first",
+        "splitModeTitle": "Split mode",
+        "splitModeDesc": "Read sentence by sentence, or read whole paragraphs separated by blank lines",
+        "splitModeSentence": "Per sentence",
+        "splitModeParagraph": "Per paragraph",
+        "speedTitle": "Speed",
+        "speedDesc": "Controls how fast the voice reads",
+        "volumeTitle": "Volume",
+        "volumeDesc": "Controls the read-aloud volume",
+        "engineTitle": "Engine selection",
+        "engineOff": "Off",
+        "engineMiniMax": "MiniMax",
+        "tagCloud": "Cloud",
+        "engineMimo": "Xiaomi MiMo",
+        "engineMossland": "Mossland",
+        "engineGptSovits": "GPT-SoVITS",
+        "tagLocal": "Local",
+        "engineCustomCloud": "Custom cloud",
+        "tagInterface": "API",
+        "minimaxConfig": "MiniMax configuration",
+        "minimaxApiKey": "API key",
+        "minimaxVoiceId": "Voice ID",
+        "minimaxModel": "Synthesis model",
+        "minimaxModelTurbo": "speech-2.8-turbo (fast ¥2.0/10K characters)",
+        "minimaxModelHd": "speech-2.8-hd (high fidelity ¥3.5/10K characters)",
+        "streamingTitle": "Streaming playback",
+        "streamingDesc": "Synthesize and play at the same time, with low latency to the first sound (on by default). Turn off = wait for the full audio, then play.",
+        "vocalEnhanceTitle": "Voice enhancement",
+        "vocalEnhanceDesc": "Automatically inserts MiniMax voice tags such as laughter, breaths, and sighs to make the speech sound more natural.",
+        "testPronunciation": "Test pronunciation",
+        "saveConfig": "Save configuration",
+        "minimaxCloneTitle": "Quick voice cloning",
+        "minimaxCloneHint": "Upload a Cyrene voice recording (mp3/m4a/wav, 10 seconds to 5 minutes, ≤20MB) to train a dedicated voice",
+        "minimaxCloneWarning": "⚠️ Each clone is billed",
+        "minimaxCloneSpecLink": "View full specifications →",
+        "cloneFileLabel": "Voice file",
+        "clonePickButton": "Choose",
+        "clonePromptFileLabel": "Sample audio",
+        "clonePromptTextLabel": "Sample text",
+        "cloneTextLabel": "Clone text",
+        "cloneVoiceIdLabel": "Voice name",
+        "cloneStartButton": "🚀 Start cloning",
+        "gptsovitsConfig": "🗣️ GPT-SoVITS configuration",
+        "gptsovitsApiUrl": "API URL (baseUrl)",
+        "gptsovitsRefAudio": "Reference audio path",
+        "gptsovitsPromptText": "Text that matches the reference audio",
+        "gptsovitsFormat": "Output format",
+        "gptsovitsFormatWav": "wav (recommended, GPT-SoVITS default)",
+        "gptsovitsFormatMp3": "mp3 (requires server-side support)",
+        "gptsovitsTimeout": "Synthesis timeout (ms)",
+        "customCloudConfig": "☁️ Custom cloud configuration",
+        "customCloudEndpoint": "Endpoint URL",
+        "customCloudApiKey": "API key",
+        "customCloudVoiceId": "Voice ID",
+        "customCloudFormat": "Output format",
+        "customCloudFormatMp3": "mp3",
+        "customCloudFormatWav": "wav",
+        "customCloudTimeout": "Timeout (ms)",
+        "mimoConfig": "Xiaomi MiMo configuration",
+        "mimoApiKey": "API key",
+        "mimoVoiceAudio": "Cyrene clone audio",
+        "mimoStyle": "Style prompt",
+        "mosslandLogoText": "Mossland configuration",
+        "mosslandHint": "Built on Mossland cloud TTS (api.mosi.cn). Bearer auth; POST /v1/audio/speech to synthesize; POST /v1/audio/voices to clone; GET /v1/audio/voices to fetch the list.",
+        "mosslandApiKey": "API key",
+        "mosslandModel": "Synthesis model",
+        "mosslandModelFlash": "MOSS-TTS 1.5 flash",
+        "mosslandModelPro": "MOSS-TTS 1.0 pro",
+        "mosslandVoiceId": "Voice ID",
+        "mosslandText": "Preview text",
+        "mosslandFormat": "Preview format",
+        "mosslandFormatMp3": "mp3",
+        "mosslandFormatWav": "wav",
+        "cloneTitle": "Voice cloning",
+        "mosslandCloneInfoButton": "Cloning notes",
+        "mosslandCloneHint": "Upload a clear single-speaker reference audio and Mossland creates a voice_id via multipart/form-data.",
+        "mosslandCloneWarning": "The voice_id is returned by the Mossland backend; paste it into the \"voice ID\" field above to reuse it. For the validity period and account quota, refer to the Mossland console.",
+        "mosslandCloneFile": "Reference audio",
+        "mosslandCloneName": "Voice name",
+        "mosslandCloneDesc": "Voice description",
+        "mosslandCloneUploadButton": "Upload clone",
+        "mosslandVoiceListTitle": "My Mossland voices",
+        "mosslandVoiceListHint": "Fetch the voices already created under your account from the Mossland server, and fill one into the \"voice ID\" field above with a single click.",
+        "mosslandVoiceListButton": "Fetch voice list",
+        "ttsHint": "💡 MiniMax requires training a voice in the console and filling in the voice ID. GPT-SoVITS requires you to run a local service yourself and provide reference audio. Custom cloud POSTs a fixed JSON body to your endpoint. Xiaomi MiMo currently uses Cyrene's reference audio for non-streaming wav synthesis via voiceclone. Mossland uploads the clone audio via multipart to POST /v1/audio/voices and returns a voice_id."
+      },
+      "asr": {
+        "heading": "ASR settings",
+        "subheading": "Speech recognition and call settings",
+        "engineTitle": "ASR engine",
+        "engineLabel": "ASR provider",
+        "engineOff": "Off",
+        "engineAliyun": "Alibaba cloud (real-time speech recognition)",
+        "engineMossland": "Mossland (transcribes after each turn ends)",
+        "engineLocal": "Local (placeholder, coming soon)",
+        "engineHint": "Alibaba cloud supports real-time interim results; Mossland returns the full text after each speaking turn ends.",
+        "aliyunConfig": "Alibaba cloud configuration",
+        "aliyunAppKey": "App key",
+        "aliyunAccessKeyId": "AccessKey ID",
+        "aliyunAccessKeySecret": "AccessKey secret",
+        "languageLabel": "Recognition language",
+        "languageZh": "Chinese",
+        "languageEn": "English",
+        "aliyunHint": "Alibaba cloud → intelligent speech interaction console → create a project to get the AppKey. Get the AccessKey in the RAM access control console (ram.console.aliyun.com/manage/ak). The token is fetched automatically, so there is no need to fill it in manually.",
+        "mosslandConfig": "Mossland configuration",
+        "mosslandKey": "API key",
+        "mosslandHint": "Shares the same API key as Mossland TTS. Audio is uploaded to moss-transcribe after VAD determines the current turn has ended; no real-time interim subtitles are provided.",
+        "callTitle": "Call settings",
+        "vadSilence": "VAD silence threshold (ms)",
+        "vadSilenceHint": "How long a pause after the user speaks before the turn counts as finished. If someone takes their time finding words, set it larger (e.g. 3000); if they respond quickly, set it smaller (e.g. 800). Default is 1000ms.",
+        "vadThreshold": "VAD volume threshold (0.001 ~ 0.5)",
+        "vadThresholdHint": "Lower it when the microphone volume is low or the room is quiet (e.g. 0.005); raise it in noisy surroundings. Default is 0.01.",
+        "showTranscriptTitle": "Show text transcript during calls",
+        "showTranscriptHint": "When enabled, the call window shows the live recognized text and Cyrene's replies"
+      }
+    },
+    "placeholder": {
+      "title": "Coming soon",
+      "copy": "This module is a placeholder for now; it will be expanded once the core chat and API are wired up."
+    },
+    "sticker": {
+      "addModal": {
+        "title": "+ Add sticker",
+        "fileLabel": "Image",
+        "pickButton": "Choose file",
+        "fileEmpty": "None selected",
+        "idLabel": "English name",
+        "descLabel": "Image description",
+        "phrasesLabel": "Similar meanings (one per line)",
+        "cancelButton": "Cancel",
+        "confirmButton": "Confirm"
+      }
+    },
+    "status": {
+      "applied": "Applied automatically",
+      "applying": "Applying…",
+      "applyFailed": "Auto-apply failed",
+      "waiting": "Waiting to save",
+      "readFailed": "Failed to read configuration",
+      "prefsReadFailed": "Failed to read preferences",
+      "appearanceReadFailed": "Failed to read appearance settings",
+      "generalReadFailed": "Failed to read settings",
+      "dirty": "You have unsaved changes",
+      "releaseApply": "Applies automatically on release",
+      "appliedOk": "Applied",
+      "importingFont": "Importing font…",
+      "fontApplied": "Font applied",
+      "importFontFailed": "Failed to import font",
+      "fontResetOk": "Restored Source Han Sans",
+      "fontResetFailed": "Failed to reset the default font",
+      "iconApplied": "Icon applied",
+      "iconFailed": "Failed to apply icon",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveFailed": "Failed to save"
+    },
+    "modal": {
+      "customStyle": {
+        "title": "Custom style sampling",
+        "diversity": {
+          "label": "Diversity control",
+          "followModel": "Follow model"
+        },
+        "temperature": "Temperature",
+        "topP": "Top-P",
+        "repetition": {
+          "label": "Repetition control",
+          "light": "Light suppression",
+          "medium": "Moderate suppression",
+          "strong": "Strong suppression"
+        },
+        "reset": "Reset to default",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saved": "Custom style saved",
+        "saveFailed": "Failed to save custom style"
+      }
+    },
+    "appearance": {
+      "font": {
+        "defaultNotion": "Source Han Sans (default)"
+      }
+    },
+    "preset": {
+      "disabledSuffix": "(not adapted yet)",
+      "websiteTitle": "Go to the {{shortName}} official website",
+      "appliedDraftHint": "Preset applied; enter the API key and save the profile"
+    },
+    "profile": {
+      "count": "{{count}} profiles",
+      "empty": "No profiles yet. Pick a provider preset below to create one; it will show up here after you save.",
+      "badge": {
+        "default": "Default",
+        "vision": "Multimodal"
+      },
+      "editorTitle": {
+        "edit": "Edit profile",
+        "new": "New profile"
+      },
+      "editing": "Editing \"{{name}}\"",
+      "savedUpdated": "Profile updated",
+      "savedAdded": "Added to the model list",
+      "duplicate": "A profile with the same key, model name and URL already exists",
+      "listUnavailable": "Model list unavailable",
+      "fallbackName": "this profile",
+      "deleted": "Deleted \"{{name}}\"",
+      "deleteFailed": "Delete failed"
+    },
+    "api": {
+      "endpointPreview": {
+        "default": "The app automatically appends the request path for the selected protocol (default {{defaultSuffix}}).",
+        "suffix": "The app will automatically append {{appendedSuffix}}; the final request URL is: {{url}}",
+        "full": "A complete endpoint URL is already filled in, so no suffix is appended; the final request URL is: {{url}}"
+      },
+      "keyHint": {
+        "default": "Enter the API key created on the corresponding platform"
+      },
+      "baseUrlPlaceholder": {
+        "default": "https://api.deepseek.com"
+      },
+      "modelPlaceholder": {
+        "default": "Auto-filled after you pick a provider; you can overwrite it manually"
+      },
+      "transportHint": {
+        "default": "Choose the interface type actually provided by your service provider (OpenAI-compatible / Anthropic-compatible / OpenAI Responses); the app will not detect the protocol automatically."
+      },
+      "baseUrlResetTitle": {
+        "default": "Reset to provider default URL"
+      },
+      "note": {
+        "default": "After you pick a model preset, provider, base URL and model name are filled in automatically; you only need to enter the API key for that platform. Configuration is stored only in the local Electron user data directory."
+      },
+      "needUrlBeforeTest": "Please enter the API URL before testing",
+      "needModelBeforeTest": "Please select or enter a model before testing",
+      "testing": "Testing connection…",
+      "testOk": "Connection succeeded {{latency}}ms · {{sample}}",
+      "testFailed": "Connection failed: {{error}}",
+      "unknownError": "Unknown error",
+      "anthropicHintMissing": "The anthropic-compatible URL for this provider is not built in; enter the base URL according to the provider's documentation, since the app only appends /v1/messages.",
+      "baseUrlResetOk": "Reset to the provider default URL"
+    },
+    "customEndpoint": {
+      "localHint": "Enter your local model service address and explicitly choose an interface protocol; ports are not scanned and model capabilities are not probed.",
+      "cloudHint": "Connect to a cloud service compatible with the OpenAI or Anthropic protocol; capabilities are decided by the service provider.",
+      "apiKey": {
+        "optional": "API key (optional)",
+        "localHint": "Leave blank if your local service needs no authentication; fill it in here if your gateway requires a token",
+        "proxyHint": "Enter the API key provided by a custom service or third-party proxy",
+        "optionalPlaceholder": "Leave blank when no authentication is needed"
+      },
+      "modelPlaceholder": "Enter the model ID actually provided by the service",
+      "transportHint": "Choose the interface type actually provided by your custom service; the app will not detect it automatically.",
+      "baseUrlResetTitle": "Clear custom base URL",
+      "note": "Custom endpoints run in a conservative compatibility mode. After saving, test the connection first; a successful connection does not guarantee that structured output, tool calling or thinking mode will work.",
+      "localDraftHint": "Please enter the local service address and model ID",
+      "cloudDraftHint": "Please enter the cloud service address, API key and model ID"
+    },
+    "vision": {
+      "needUrl": "Please enter the API URL first",
+      "needModel": "Please enter the vision model first",
+      "testing": "Testing…",
+      "testOk": "✅ Connection succeeded {{latency}}ms · {{sample}}",
+      "testFailed": "❌ {{error}}"
+    },
+    "default": {
+      "provider": "MiniMax (xiyu technology)"
+    },
+    "workFlow": {
+      "adaptTitle": "Model Provider Work Flow Adaptation",
+      "adaptDate": "Last updated on 2026/7/24",
+      "compatH2": "Model Compatibility",
+      "compatBlockquote": "Cyrene automatically selects the matching Structured Output Profile for each provider.",
+      "tierH3": "Tier Guide",
+      "tierA": "A: Native JSON Schema / Function Calling",
+      "tierB": "B: JSON Object + local validation",
+      "tierM": "M: MiniMax-specific adaptation",
+      "tierD": "D: Generic compatibility mode (unknown models / custom endpoints)",
+      "tableHeader": "Provider / Support Status / Tier / Tested Models / Notes",
+      "row": {
+        "openAI": "OpenAI / ⚠️ Document-based adaptation / A / - / Official protocol adaptation complete, awaiting real-world testing.",
+        "claude": "Claude / ⚠️ Document-based adaptation / A / - / Official protocol adaptation complete, awaiting real-world testing.",
+        "doubao": "Doubao / ✅ Tested / A / Seed 2.1 Turbo / Pro / Recommended; the full Work flow is stable.",
+        "kimi": "Kimi / ✅ Tested / A / K2.6, K2.7 Code / Recommended for the standard API; the Coding endpoint is not recommended for Work.",
+        "deepSeek": "DeepSeek / ✅ Tested / B / V4.1 Flash, V4 Pro / Recommended; fast and stable.",
+        "qwen": "Qwen / ✅ Tested / B / Qwen3.7 Max / Recommended; stable performance.",
+        "glm": "GLM / ✅ Tested / B / GLM 5.1, 5.2 / Recommended; 4.7 is not recommended.",
+        "miMo": "MiMo / ✅ Tested / B / MiMo 2.5, 2.5 Pro / Recommended; stable performance.",
+        "minimax": "MiniMax / ✅ Tested / M / MiniMax M3 / Recommended; requires the M tier adaptation.",
+        "others": "Other models / ⚠️ Document-based adaptation / D / - / Uses generic compatibility mode; please verify it yourself."
+      }
+    },
+    "importDoc": {
+      "unnamed": "Untitled document",
+      "deleteTitle": "Delete imported knowledge",
+      "deleteMessage": "Delete imported knowledge?\n\nFile:\n\"{{fileName}}\"\n\nThis cannot be undone. Import it again if you still need it.",
+      "deleteConfirm": "Delete"
+    },
+    "chatHistory": {
+      "clearConfirm": "Clear all chat sessions?\\nThis will delete all conversation history and cannot be undone.",
+      "clearOk": "All chat sessions cleared",
+      "clearFailed": "Failed to clear; check the terminal log"
+    },
+    "prompt": {
+      "openFailed": "Failed to open the prompt file",
+      "opened": "Opened the prompt file location"
+    }
+  }
+}
